@@ -85,6 +85,19 @@ try:
 except ImportError:
     AGENTS_AVAILABLE = False
     print("PydanticAI agents not available, using fallback responses")
+    
+    # Define fallback classes for type hints when imports fail
+    class AgentRequest(BaseModel):
+        query: str
+        session_id: Optional[str] = None
+        
+    class AgentResponse(BaseModel):
+        query: str
+        response: str
+        agent_name: str = "Fallback Agent"
+        confidence: float = 0.0
+        session_id: Optional[str] = None
+        processing_time: float = 0.0
 
 # Configuration
 class Config:
