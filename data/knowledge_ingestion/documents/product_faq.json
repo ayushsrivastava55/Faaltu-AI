@@ -1,0 +1,345 @@
+{
+  "personal_loan_faq": {
+    "last_updated": "2024-01-15",
+    "version": "2.1",
+    "categories": [
+      {
+        "category": "Loan Basics",
+        "questions": [
+          {
+            "question": "What is a personal loan?",
+            "answer": "A personal loan is an unsecured loan that you can use for any legitimate purpose - debt consolidation, home improvement, medical expenses, wedding costs, or any other personal financial need. Unlike secured loans, it doesn't require collateral like your home or car.",
+            "keywords": ["personal loan", "unsecured", "collateral", "purpose"],
+            "follow_up_questions": [
+              "What can I use a personal loan for?",
+              "Do I need collateral?"
+            ]
+          },
+          {
+            "question": "What can I use a personal loan for?",
+            "answer": "Personal loans are versatile and can be used for: debt consolidation (combining multiple debts), home improvements, medical expenses, wedding expenses, travel, education costs, business expenses, or any other legitimate personal need. We don't restrict the usage as long as it's legal.",
+            "keywords": [
+              "usage",
+              "purpose",
+              "debt consolidation",
+              "home improvement",
+              "medical",
+              "wedding"
+            ],
+            "restrictions": [
+              "Cannot be used for speculation, gambling, or illegal activities"
+            ]
+          },
+          {
+            "question": "How much can I borrow?",
+            "answer": "At LendenClub, you can borrow between ₹25,000 to ₹40,00,000. The exact amount depends on your income, credit score, existing obligations, and repayment capacity. We assess each application individually to determine the maximum amount you qualify for.",
+            "keywords": ["loan amount", "minimum", "maximum", "eligibility"],
+            "factors": [
+              "Income level",
+              "Credit score",
+              "Existing EMIs",
+              "Employment stability"
+            ]
+          }
+        ]
+      },
+      {
+        "category": "Interest Rates and Fees",
+        "questions": [
+          {
+            "question": "What are your interest rates?",
+            "answer": "Our interest rates range from 10.99% to 35% per annum, depending on your credit profile, income stability, and loan amount. Customers with excellent credit scores and stable income get the best rates. We provide personalized rate quotes after evaluating your application.",
+            "keywords": [
+              "interest rate",
+              "APR",
+              "personalized",
+              "credit score"
+            ],
+            "rate_factors": [
+              "Credit score",
+              "Income level",
+              "Employment type",
+              "Loan amount",
+              "Tenure"
+            ]
+          },
+          {
+            "question": "Are there any hidden charges or fees?",
+            "answer": "We believe in complete transparency. Our only charges are: Processing fee (up to 3% of loan amount), GST on processing fee, and potential late payment charges if EMIs are missed. There are NO prepayment penalties, NO annual fees, and NO hidden charges. Everything is clearly disclosed upfront.",
+            "keywords": [
+              "fees",
+              "charges",
+              "transparent",
+              "prepayment penalty"
+            ],
+            "fee_structure": {
+              "processing_fee": "Up to 3% of loan amount",
+              "gst": "18% on processing fee",
+              "late_payment": "₹500 + 2% per month on overdue amount",
+              "prepayment_penalty": "₹0 (No charges)"
+            }
+          },
+          {
+            "question": "Can I prepay my loan?",
+            "answer": "Yes, you can prepay your loan partially or fully at any time without any penalty charges. This can help you save significantly on interest costs. You can make prepayments through our app, website, or by contacting customer service.",
+            "keywords": ["prepayment", "foreclosure", "penalty", "savings"]
+          }
+        ]
+      },
+      {
+        "category": "Eligibility and Documentation",
+        "questions": [
+          {
+            "question": "What are the eligibility criteria?",
+            "answer": "To be eligible: You must be 23-58 years old, have a minimum monthly income of ₹25,000 (salaried) or ₹20,000 (self-employed), work for at least 2 years with current employer for 1+ year (salaried) or be in business for 3+ years (self-employed), and have a credit score of 650+.",
+            "keywords": [
+              "eligibility",
+              "age",
+              "income",
+              "employment",
+              "credit score"
+            ],
+            "criteria": {
+              "age": "23-58 years",
+              "min_income_salaried": "₹25,000/month",
+              "min_income_self_employed": "₹20,000/month",
+              "work_experience": "2+ years total, 1+ with current employer",
+              "business_vintage": "3+ years for self-employed",
+              "credit_score": "650+"
+            }
+          },
+          {
+            "question": "What documents do I need?",
+            "answer": "For salaried: PAN card, Aadhaar card, salary slips (last 3 months), bank statements (last 6 months), employment letter/ID card. For self-employed: PAN card, Aadhaar card, ITR (last 2 years), bank statements (last 12 months), business proof, financial statements.",
+            "keywords": [
+              "documents",
+              "KYC",
+              "income proof",
+              "salaried",
+              "self-employed"
+            ],
+            "document_checklist": {
+              "common": ["PAN card", "Aadhaar card"],
+              "salaried": [
+                "Salary slips (3 months)",
+                "Bank statements (6 months)",
+                "Employment proof"
+              ],
+              "self_employed": [
+                "ITR (2 years)",
+                "Bank statements (12 months)",
+                "Business registration",
+                "Financial statements"
+              ]
+            }
+          },
+          {
+            "question": "Can I apply if I have a low credit score?",
+            "answer": "While we prefer a credit score of 650+, we evaluate applications holistically. If you have a lower score but stable income, good banking behavior, and valid reasons for past credit issues, you might still qualify. We recommend checking your free credit score first and explaining any negative marks in your application.",
+            "keywords": [
+              "low credit score",
+              "alternative assessment",
+              "holistic evaluation"
+            ],
+            "improvement_tips": [
+              "Pay all bills on time",
+              "Reduce credit utilization",
+              "Don't close old credit cards",
+              "Check credit report for errors"
+            ]
+          }
+        ]
+      },
+      {
+        "category": "Application Process",
+        "questions": [
+          {
+            "question": "How long does the approval process take?",
+            "answer": "Our digital process is designed for speed: Initial approval in 2 minutes online, document verification within 24 hours, final approval and disbursal within 24-48 hours of document submission. Most customers receive funds within 2 business days of applying.",
+            "keywords": ["approval time", "disbursal", "process speed"],
+            "timeline": {
+              "initial_approval": "2 minutes",
+              "document_verification": "24 hours",
+              "final_approval": "24-48 hours",
+              "disbursal": "Within 2 business days"
+            }
+          },
+          {
+            "question": "Can I apply online?",
+            "answer": "Yes, our entire process is 100% digital. Apply through our website or mobile app, upload documents digitally, get instant pre-approval, complete verification through video call if needed, and receive funds directly in your bank account. No branch visits required.",
+            "keywords": [
+              "online application",
+              "digital process",
+              "mobile app",
+              "paperless"
+            ],
+            "digital_features": [
+              "Instant eligibility check",
+              "Document upload",
+              "E-sign",
+              "Video KYC",
+              "Digital disbursal"
+            ]
+          },
+          {
+            "question": "What happens after I apply?",
+            "answer": "After application: 1) Instant eligibility check and initial approval/rejection, 2) Document upload and verification, 3) Credit assessment and final approval, 4) Loan agreement signing (digital), 5) Disbursal to your bank account. You'll receive SMS and email updates at each step.",
+            "keywords": ["application status", "process steps", "tracking"],
+            "communication": [
+              "SMS alerts",
+              "Email updates",
+              "App notifications",
+              "Customer service calls"
+            ]
+          }
+        ]
+      },
+      {
+        "category": "EMI and Repayment",
+        "questions": [
+          {
+            "question": "What are the repayment options?",
+            "answer": "We offer flexible repayment tenures from 12 to 60 months. You can choose your EMI date (5th, 10th, 15th, or 20th of each month) and repayment method (auto-debit, online payment, mobile app, or check). Longer tenures mean lower EMIs but higher total interest cost.",
+            "keywords": ["repayment", "tenure", "EMI", "flexibility"],
+            "options": {
+              "tenure": "12-60 months",
+              "emi_dates": ["5th", "10th", "15th", "20th"],
+              "payment_methods": [
+                "Auto-debit",
+                "Online",
+                "Mobile app",
+                "Check deposit"
+              ]
+            }
+          },
+          {
+            "question": "What if I miss an EMI payment?",
+            "answer": "If you miss an EMI: 1) ₹500 late fee is charged, 2) Additional interest of 2% per month on overdue amount, 3) Your credit score may be impacted, 4) We'll contact you to help resolve the situation. Contact us immediately if you anticipate payment difficulties - we can discuss solutions.",
+            "keywords": [
+              "missed EMI",
+              "late payment",
+              "penalty",
+              "credit impact"
+            ],
+            "consequences": [
+              "Late fee: ₹500",
+              "Additional interest: 2%/month",
+              "Credit score impact",
+              "Recovery actions"
+            ],
+            "solutions": [
+              "Payment rescheduling",
+              "EMI restructuring",
+              "Settlement options"
+            ]
+          },
+          {
+            "question": "Can I change my EMI date?",
+            "answer": "Yes, you can change your EMI date once during the loan tenure, subject to bank processing requirements. The change will take effect from the next billing cycle. Contact customer service to request the change at least 15 days before your current EMI date.",
+            "keywords": ["EMI date change", "billing cycle", "flexibility"]
+          }
+        ]
+      },
+      {
+        "category": "Customer Service and Support",
+        "questions": [
+          {
+            "question": "How can I contact customer service?",
+            "answer": "Multiple ways to reach us: Call our helpline at 1800-XXX-XXXX (toll-free, 24/7), email support@lendenclub.com, chat through our website/app, or visit our support center. For loan-related queries, have your application/loan number ready for faster service.",
+            "keywords": ["customer service", "contact", "support", "helpline"],
+            "channels": {
+              "phone": "1800-XXX-XXXX (24/7)",
+              "email": "support@lendenclub.com",
+              "chat": "Website and mobile app",
+              "social_media": "Twitter, Facebook for quick responses"
+            }
+          },
+          {
+            "question": "Is my personal information secure?",
+            "answer": "Yes, we take data security extremely seriously. We use 256-bit SSL encryption, comply with RBI guidelines, are PCI DSS certified, and follow strict data protection protocols. Your information is never shared with unauthorized parties and is used only for loan processing and servicing.",
+            "keywords": [
+              "data security",
+              "privacy",
+              "encryption",
+              "compliance"
+            ],
+            "security_measures": [
+              "256-bit SSL encryption",
+              "PCI DSS compliance",
+              "RBI guideline adherence",
+              "Regular security audits",
+              "Restricted data access"
+            ]
+          }
+        ]
+      },
+      {
+        "category": "Special Situations",
+        "questions": [
+          {
+            "question": "Can I get a loan for debt consolidation?",
+            "answer": "Absolutely! Debt consolidation is one of our most popular loan purposes. You can combine multiple credit card debts, personal loans, or other high-interest debts into one loan with potentially lower interest rate and single EMI. This often saves money and simplifies your finances.",
+            "keywords": [
+              "debt consolidation",
+              "credit card debt",
+              "multiple loans",
+              "savings"
+            ],
+            "benefits": [
+              "Single EMI instead of multiple payments",
+              "Potentially lower interest rate",
+              "Improved cash flow management",
+              "Reduced financial stress",
+              "Better credit score over time"
+            ]
+          },
+          {
+            "question": "Do you offer loans for medical emergencies?",
+            "answer": "Yes, we understand medical emergencies can't wait. For genuine medical emergencies with hospital bills/estimates, we can expedite your application for faster processing. Keep your medical documents, hospital bills, and income proof ready for quick verification.",
+            "keywords": [
+              "medical emergency",
+              "hospital bills",
+              "expedited processing"
+            ],
+            "emergency_process": [
+              "Priority application review",
+              "Faster document verification",
+              "Same-day approval possible",
+              "Direct hospital payment option"
+            ]
+          }
+        ]
+      }
+    ],
+    "common_objections": {
+      "high_interest_rate": {
+        "response": "I understand rate is important. Consider that personal loans are unsecured, so rates are higher than secured loans but lower than credit cards (24-36%). Plus, our transparent pricing means no hidden costs, and you can prepay anytime to save on interest.",
+        "comparison_points": [
+          "Credit card interest: 24-36% annually",
+          "No collateral risk to your assets",
+          "Faster processing than bank loans",
+          "Transparent fee structure"
+        ]
+      },
+      "need_to_think": {
+        "response": "That's absolutely fine and shows you're making a thoughtful decision. What specific aspects would you like to understand better? I'm here to clarify anything. Also, rates can change, so if you like the current offer, it might be worth securing it.",
+        "follow_up": [
+          "Identify specific concerns",
+          "Provide additional information",
+          "Create appropriate urgency",
+          "Offer to hold the rate"
+        ]
+      },
+      "want_to_compare": {
+        "response": "Smart approach! When comparing, consider not just the interest rate but also processing fees, prepayment penalties, approval speed, and customer service. We're confident you'll find our overall value proposition competitive.",
+        "comparison_factors": [
+          "Total cost including all fees",
+          "Processing speed and convenience",
+          "Customer service quality",
+          "Prepayment flexibility",
+          "Digital experience"
+        ]
+      }
+    }
+  }
+}

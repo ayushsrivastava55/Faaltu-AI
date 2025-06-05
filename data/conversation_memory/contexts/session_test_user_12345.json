@@ -1,0 +1,165 @@
+{
+  "session_id": "session_test_user_12345",
+  "user_profile": {
+    "user_id": "session_test_user_12345",
+    "session_id": "session_test_user_12345",
+    "monthly_income": 75000,
+    "age": null,
+    "employment_type": null,
+    "credit_score": null,
+    "existing_loans": [],
+    "monthly_expenses": null,
+    "savings_amount": null,
+    "loan_purposes": [
+      "personal"
+    ],
+    "preferred_tenure": null,
+    "max_emi_capacity": null,
+    "risk_tolerance": null,
+    "communication_style": null,
+    "frequently_asked_topics": [
+      "loan_rates",
+      "general_inquiry"
+    ],
+    "preferred_agents": [
+      "Loan Advisor Agent",
+      "Agent Orchestrator",
+      "Market Researcher Agent"
+    ],
+    "interaction_patterns": {
+      "total_interactions": 6,
+      "hours": {
+        "13": 6
+      },
+      "days": {
+        "Thursday": 6
+      }
+    },
+    "created_at": "2025-06-05 13:29:39.512632",
+    "last_updated": "2025-06-05 13:30:42.572230",
+    "total_interactions": 6
+  },
+  "conversation_history": [
+    {
+      "timestamp": "2025-06-05 13:29:47.161279",
+      "user_query": "Hi, I earn 75000 per month and I'm looking for a personal loan",
+      "system_response": "Great! To start, let's build a comprehensive financial profile to better understand your current financial situation. \n\n1. Monthly Income: $75,000\n2. Monthly Expenses: Please provide an estimate of your monthly expenses including rent/mortgage, utilities, groceries, transportation, etc.\n3. Existing Debts: Do you have any existing loans or credit card debts? If yes, please provide details like outstanding amount, monthly payments, and interest rates.\n4. Credit Score: Do you know your current credit score? If not, I can help you check it to better assess your loan options.\n5. Loan Purpose: What do you intend to use the personal loan for?\n6. Loan Amount and Tenure: Do you have a specific loan amount in mind? How long would you prefer the loan tenure to be?\n7. Any other financial goals or concerns you would like to share?\n\nOnce you provide this information, I can help you determine the optimal loan amount, tenure, and recommend the best loan product for your needs.",
+      "agents_consulted": [
+        "Loan Advisor Agent"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Loan Advisor Agent processing",
+      "user_context": {
+        "test": true,
+        "session_id": "session_test_user_12345",
+        "conversation_turns": 0,
+        "current_topic": null,
+        "last_agent_used": null,
+        "income": 75000,
+        "loan_purpose": "personal"
+      },
+      "confidence": 0.8,
+      "processing_time": 1.776546
+    },
+    {
+      "timestamp": "2025-06-05 13:29:47.165133",
+      "user_query": "What interest rates can I get?",
+      "system_response": "I apologize, but I encountered an error processing your request: sequence item 0: expected str instance, list found",
+      "agents_consulted": [
+        "Agent Orchestrator"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Agent Orchestrator error handling",
+      "user_context": {
+        "test": true
+      },
+      "confidence": 0.1,
+      "processing_time": 0.000343
+    },
+    {
+      "timestamp": "2025-06-05 13:29:47.167049",
+      "user_query": "I'm also a salaried employee with good credit score",
+      "system_response": "I apologize, but I encountered an error processing your request: sequence item 0: expected str instance, list found",
+      "agents_consulted": [
+        "Agent Orchestrator"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Agent Orchestrator error handling",
+      "user_context": {
+        "test": true
+      },
+      "confidence": 0.1,
+      "processing_time": 0.000112
+    },
+    {
+      "timestamp": "2025-06-05 13:30:34.846537",
+      "user_query": "Use the loan advisor agent to provide personalized loan recommendations based on the user's income and credit score. Include information on suitable loan options and interest rates.",
+      "system_response": "Based on your monthly income of \u20b975,000 and your good credit score, you are in a strong position to access competitive loan options. Here are some personalized recommendations for you:\n\n1. **Personal Loan**: Given your stable income and good credit score, you can likely qualify for a personal loan with competitive interest rates ranging from 10% to 15%. This type of loan provides flexibility in terms of usage and typically offers loan amounts based on your income and creditworthiness.\n\n2. **Salary Advance or Overdraft Facility**: Some financial institutions offer salary advances or overdraft facilities to salaried individuals with good credit scores. These options provide quick access to funds at lower interest rates than traditional personal loans.\n\n3. **Credit Card Loan**: If you have a good credit history, you may also consider credit card loans, which offer instant financing with varying interest rates but can be convenient for short-term financial needs.\n\nIt's essential to compare offers from different lenders, considering not only the interest rates but also factors like processing fees, tenure flexibility, and additional benefits. Additionally, the loan amount, tenure, and interest rate offered to you will depend on your individual financial profile and creditworthiness.\n\nI recommend exploring these options based on your financial stability and credit score to find the best loan product that suits your needs. If you provide more specific details about the purpose of the loan or any preferences you have, I can further tailor the recommendations for you.",
+      "agents_consulted": [
+        "Loan Advisor Agent"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Loan Advisor Agent processing",
+      "user_context": {
+        "test": true,
+        "session_id": "session_test_user_12345",
+        "conversation_turns": 3,
+        "current_topic": "general_inquiry",
+        "last_agent_used": "Agent Orchestrator",
+        "income": 75000,
+        "loan_purpose": "personal"
+      },
+      "confidence": 0.8,
+      "processing_time": 4.633654
+    },
+    {
+      "timestamp": "2025-06-05 13:30:35.826639",
+      "user_query": "Utilize the market researcher agent to gather real-time market rates for personal loans and provide comparative analysis to help the user make an informed decision.",
+      "system_response": "I will gather real-time market rates for personal loans from various financial institutions and provide you with a comparative analysis to help you make an informed decision. Let me begin the research and analysis process. This may take a few moments. Thank you for your patience.",
+      "agents_consulted": [
+        "Market Researcher Agent"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Market Researcher Agent processing",
+      "user_context": {
+        "test": true,
+        "session_id": "session_test_user_12345",
+        "conversation_turns": 4,
+        "current_topic": "loan_rates",
+        "last_agent_used": "Loan Advisor Agent",
+        "income": 75000,
+        "loan_purpose": "personal"
+      },
+      "confidence": 0.8,
+      "processing_time": 0.968517
+    },
+    {
+      "timestamp": "2025-06-05 13:30:42.572117",
+      "user_query": "What interest rates can I get?",
+      "system_response": "Based on your monthly income of \u20b975,000 and your good credit score, you are likely to qualify for competitive interest rates on personal loans. I will gather real-time market rates from multiple financial institutions and provide you with a detailed comparison, including processing fees, loan product features, and any regulatory changes that might affect lending rates. This information will help you make an informed decision on the best loan option for your financial needs. Let me start the research to provide you with the most up-to-date market rates and analysis.",
+      "agents_consulted": [
+        "Market Researcher Agent"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Market Researcher Agent processing",
+      "user_context": {
+        "test": true,
+        "session_id": "session_test_user_12345",
+        "conversation_turns": 5,
+        "current_topic": "loan_rates",
+        "last_agent_used": "Market Researcher Agent",
+        "income": 75000
+      },
+      "confidence": 0.8,
+      "processing_time": 1.201884
+    }
+  ],
+  "current_topic": "loan_rates",
+  "active_goals": [],
+  "context_summary": "Discussion topics: loan_rates",
+  "last_agent_used": "Market Researcher Agent",
+  "pending_actions": [],
+  "started_at": "2025-06-05 13:29:39.512931",
+  "last_activity": "2025-06-05 13:30:42.572196",
+  "is_voice_session": false
+}

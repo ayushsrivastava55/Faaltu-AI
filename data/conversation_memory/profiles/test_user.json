@@ -1,0 +1,40 @@
+{
+  "user_id": "test_user",
+  "session_id": "test_session_001",
+  "monthly_income": 75000,
+  "age": null,
+  "employment_type": "salaried",
+  "credit_score": 780,
+  "existing_loans": [],
+  "monthly_expenses": null,
+  "savings_amount": null,
+  "loan_purposes": [
+    "personal",
+    "home"
+  ],
+  "preferred_tenure": null,
+  "max_emi_capacity": null,
+  "risk_tolerance": null,
+  "communication_style": "detailed",
+  "frequently_asked_topics": [
+    "loan_rates",
+    "general_inquiry"
+  ],
+  "preferred_agents": [
+    "loan_advisor",
+    "market_researcher",
+    "compliance_checker"
+  ],
+  "interaction_patterns": {
+    "total_interactions": 4,
+    "hours": {
+      "4": 4
+    },
+    "days": {
+      "Thursday": 4
+    }
+  },
+  "created_at": "2025-06-05 04:52:59.106408",
+  "last_updated": "2025-06-05 04:52:59.108400",
+  "total_interactions": 4
+}

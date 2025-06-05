@@ -1,0 +1,86 @@
+{
+  "session_id": "scenario_2_business_user",
+  "user_profile": {
+    "user_id": "business_user_123",
+    "session_id": "scenario_2_business_user",
+    "monthly_income": 120000,
+    "age": null,
+    "employment_type": "self_employed",
+    "credit_score": null,
+    "existing_loans": [],
+    "monthly_expenses": null,
+    "savings_amount": null,
+    "loan_purposes": [
+      "personal",
+      "business"
+    ],
+    "preferred_tenure": null,
+    "max_emi_capacity": null,
+    "risk_tolerance": null,
+    "communication_style": null,
+    "frequently_asked_topics": [
+      "general_inquiry"
+    ],
+    "preferred_agents": [
+      "loan_advisor",
+      "market_researcher"
+    ],
+    "interaction_patterns": {
+      "total_interactions": 2,
+      "hours": {
+        "4": 2
+      },
+      "days": {
+        "Thursday": 2
+      }
+    },
+    "created_at": "2025-06-05 04:52:59.110079",
+    "last_updated": "2025-06-05 04:52:59.110762",
+    "total_interactions": 7
+  },
+  "conversation_history": [
+    {
+      "timestamp": "2025-06-05 04:52:59.110424",
+      "user_query": "Hi, I previously asked about personal loans, but now I need a business loan",
+      "system_response": "Hello again! I see from our previous conversations that you're self-employed with a monthly income of \u20b91.2 lakhs. Business loans are a great option for you. What's your business requirement?",
+      "agents_consulted": [
+        "loan_advisor"
+      ],
+      "tools_used": [],
+      "reasoning_approach": null,
+      "user_context": {
+        "income": 120000,
+        "employment_type": "self_employed",
+        "loan_purpose": "business"
+      },
+      "confidence": 0.9,
+      "processing_time": 2.0
+    },
+    {
+      "timestamp": "2025-06-05 04:52:59.110756",
+      "user_query": "I need 10 lakhs to expand my shop inventory",
+      "system_response": "Perfect! For inventory expansion, a business loan of \u20b910 lakhs is very feasible with your income profile. Business loans offer better rates than personal loans and longer tenures. You could get rates starting from 11.5% with EMIs around \u20b918,000-22,000 depending on tenure.",
+      "agents_consulted": [
+        "loan_advisor",
+        "market_researcher"
+      ],
+      "tools_used": [],
+      "reasoning_approach": null,
+      "user_context": {
+        "income": 120000,
+        "loan_amount": 1000000,
+        "loan_purpose": "business"
+      },
+      "confidence": 0.9,
+      "processing_time": 2.0
+    }
+  ],
+  "current_topic": "general_inquiry",
+  "active_goals": [],
+  "context_summary": "General conversation with 2 exchanges",
+  "last_agent_used": "loan_advisor",
+  "pending_actions": [],
+  "started_at": "2025-06-05 04:52:59.110199",
+  "last_activity": "2025-06-05 04:52:59.110760",
+  "is_voice_session": false
+}

@@ -1,0 +1,186 @@
+{
+  "session_id": "session_1749110522056_6hui27n7x",
+  "user_profile": {
+    "user_id": "session_1749110522056_6hui27n7x",
+    "session_id": "session_1749110522056_6hui27n7x",
+    "monthly_income": null,
+    "age": null,
+    "employment_type": null,
+    "credit_score": null,
+    "existing_loans": [],
+    "monthly_expenses": null,
+    "savings_amount": null,
+    "loan_purposes": [
+      "personal",
+      "debt"
+    ],
+    "preferred_tenure": null,
+    "max_emi_capacity": null,
+    "risk_tolerance": null,
+    "communication_style": null,
+    "frequently_asked_topics": [
+      "market_research",
+      "loan_comparison",
+      "general_inquiry",
+      "loan_eligibility"
+    ],
+    "preferred_agents": [
+      "Loan Advisor Agent",
+      "Compliance Checker Agent",
+      "Document Processor Agent",
+      "Market Researcher Agent"
+    ],
+    "interaction_patterns": {
+      "total_interactions": 9,
+      "hours": {
+        "13": 2,
+        "14": 1,
+        "19": 6
+      },
+      "days": {
+        "Thursday": 9
+      }
+    },
+    "created_at": "2025-06-05 13:33:18.373406",
+    "last_updated": "2025-06-05 19:11:47.848039",
+    "total_interactions": 9
+  },
+  "conversation_history": [
+    {
+      "timestamp": "2025-06-05 19:09:31.015064",
+      "user_query": "Engage LoanAdvisorAgent to gather user's financial profile, loan requirements, and preferences.",
+      "system_response": "Hello! I'm LoanAdvisorAgent. To better assist you, I'll need some information to build your financial profile and understand your loan requirements and preferences. \n\nLet's start by gathering some key details:\n1. **Income**: Please provide your monthly income from all sources.\n2. **Expenses**: Share an estimate of your monthly expenses, including any existing loan EMIs.\n3. **Credit Score**: If you know your credit score, please mention it.\n4. **Loan Purpose**: What do you intend to use the loan for?\n5. **Loan Amount**: How much do you need to borrow?\n6. **Loan Tenure**: In how many months do you aim to repay the loan?\n7. **Interest Rate Preference**: Do you have a preference for a fixed or variable interest rate?\n8. **Any specific preferences or concerns**: Is there anything specific you are looking for in a loan product or any concerns you have regarding the loan?\n\nFeel free to provide as much detail as you can to ensure I can offer you the best recommendations.",
+      "agents_consulted": [
+        "Loan Advisor Agent"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Loan Advisor Agent processing",
+      "user_context": {
+        "username": "demo",
+        "email": "demo@example.com",
+        "full_name": "Demo User",
+        "session_id": "session_1749110522056_6hui27n7x",
+        "conversation_turns": 0,
+        "current_topic": null,
+        "last_agent_used": null
+      },
+      "confidence": 0.8,
+      "processing_time": 2.646527
+    },
+    {
+      "timestamp": "2025-06-05 19:09:32.954468",
+      "user_query": "Run compliance checks with ComplianceCheckerAgent to ensure regulatory compliance and assess loan eligibility.",
+      "system_response": "Hello! I'm ComplianceCheckerAgent. As a compliance and regulatory specialist for lending operations, I'll be conducting compliance checks to ensure that all lending activities meet regulatory standards and assessing your loan eligibility based on the information gathered by LoanAdvisorAgent.\n\nLet's review your financial profile, loan requirements, and preferences to determine the best loan options available to you while ensuring compliance with RBI guidelines and regulatory requirements. \n\nI'll get started on assessing the eligibility and compliance aspects. Thank you for providing your details earlier. Let's make sure we find the best loan option for you within the regulatory framework.",
+      "agents_consulted": [
+        "Compliance Checker Agent"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Compliance Checker Agent processing",
+      "user_context": {
+        "username": "demo",
+        "email": "demo@example.com",
+        "full_name": "Demo User",
+        "session_id": "session_1749110522056_6hui27n7x",
+        "conversation_turns": 1,
+        "current_topic": "loan_eligibility",
+        "last_agent_used": "Loan Advisor Agent"
+      },
+      "confidence": 0.8,
+      "processing_time": 1.934094
+    },
+    {
+      "timestamp": "2025-06-05 19:10:35.101987",
+      "user_query": "what details should i exactly share",
+      "system_response": "Hello! Based on our previous conversation, I can help you gather essential information for your financial profile and loan requirements. To get started, we can begin by collecting details such as your income, expenses, assets, liabilities, credit history, loan amount needed, purpose of the loan, preferred repayment term, and any specific preferences you may have regarding the loan terms. Additionally, I can run compliance checks to ensure that the lending process meets regulatory standards and assess your eligibility for the loan. Feel free to share any specific details or concerns you have, and I'll guide you through the process.",
+      "agents_consulted": [
+        "Document Processor Agent"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Document Processor Agent processing",
+      "user_context": {
+        "username": "demo",
+        "email": "demo@example.com",
+        "full_name": "Demo User",
+        "session_id": "session_1749110522056_6hui27n7x",
+        "conversation_turns": 2,
+        "current_topic": "general_inquiry",
+        "last_agent_used": "Compliance Checker Agent"
+      },
+      "confidence": 0.8,
+      "processing_time": 1.200399
+    },
+    {
+      "timestamp": "2025-06-05 19:11:00.880664",
+      "user_query": "income: 20k",
+      "system_response": "Thank you for sharing your income details. To provide you with the best financial guidance, I would need a bit more information to create a comprehensive financial profile. Could you also share details such as your monthly expenses, existing debts, credit score if available, and any specific financial goals or needs you have in mind? This information will help me tailor loan recommendations that align with your financial situation and objectives.",
+      "agents_consulted": [
+        "Loan Advisor Agent"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Loan Advisor Agent processing",
+      "user_context": {
+        "username": "demo",
+        "email": "demo@example.com",
+        "full_name": "Demo User",
+        "session_id": "session_1749110522056_6hui27n7x",
+        "conversation_turns": 3,
+        "current_topic": "general_inquiry",
+        "last_agent_used": "Document Processor Agent"
+      },
+      "confidence": 0.8,
+      "processing_time": 1.028558
+    },
+    {
+      "timestamp": "2025-06-05 19:11:43.681888",
+      "user_query": "Utilize Loan Advisor Agent to recommend personalized loan options tailored towards growing money with a credit score of 650 and no existing debts.",
+      "system_response": "Given your financial goal to grow your money and your current credit score of 650 with no existing debts, here are some personalized loan options tailored towards optimizing your financial situation:\n\n1. **Personal Loan for Investments**:\n   - Loan Amount: $10,000\n   - Loan Tenure: 3 years\n   - Reasoning: This loan amount can provide you with the necessary capital to explore investment opportunities that align with your goal of growing your money. The moderate tenure of 3 years allows for manageable EMIs without stretching your budget.\n\n2. **Peer-to-Peer Lending**:\n   - Loan Amount: $8,000\n   - Loan Tenure: 2 years\n   - Reasoning: Peer-to-peer lending platforms offer competitive interest rates and flexible terms. This option can help you access funds for investment purposes while leveraging your credit score to secure favorable lending conditions.\n\n3. **Debt Consolidation Loan** (for potential future needs):\n   - Loan Amount: $15,000\n   - Loan Tenure: 5 years\n   - Reasoning: While you may not have existing debts now, considering a debt consolidation loan for future needs can be a strategic move. This loan amount can serve as a financial buffer for unforeseen circumstances or larger investment opportunities.\n\nEach of these options is tailored to support your objective of growing your money while considering your credit score and current financial stability. Before proceeding, it's essential to evaluate the associated interest rates, total repayment amounts, and any additional fees to ensure the chosen loan aligns with your long-term financial goals.\n\nWould you like more details on any specific loan option or further assistance in selecting the most suitable one for your financial aspirations?",
+      "agents_consulted": [
+        "Loan Advisor Agent"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Loan Advisor Agent processing",
+      "user_context": {
+        "username": "demo",
+        "email": "demo@example.com",
+        "full_name": "Demo User",
+        "session_id": "session_1749110522056_6hui27n7x",
+        "conversation_turns": 4,
+        "current_topic": "general_inquiry",
+        "last_agent_used": "Loan Advisor Agent",
+        "loan_purpose": "personal"
+      },
+      "confidence": 0.8,
+      "processing_time": 3.144517
+    },
+    {
+      "timestamp": "2025-06-05 19:11:47.846648",
+      "user_query": "Engage Market Researcher Agent to provide insights on investment opportunities or financial products that align with the user's goal of growing money.",
+      "system_response": "As a Market Researcher specializing in lending markets, I can offer insights on investment opportunities or financial products that align with your goal of growing your money. Considering your current financial profile, including a monthly income of 20k, no existing debts, and a credit score of 650, let's explore potential avenues for optimizing your financial growth through tailored loan products or investment strategies.\n\n1. **Peer-to-Peer Lending Platforms**:\n   - Peer-to-peer lending can be a lucrative investment option where you can earn interest by lending money to individuals or businesses through online platforms. With your credit score of 650, you may qualify for competitive rates on these platforms, providing you with a potential source of passive income.\n\n2. **High-Yield Savings Accounts**:\n   - Consider opening a high-yield savings account with online banks offering above-average interest rates. This can help grow your money steadily while maintaining accessibility to your funds for future investment opportunities.\n\n3. **Stock Market Investments**:\n   - Diversifying your portfolio with carefully selected stocks or index funds can lead to substantial returns over time. Conduct thorough research or consider consulting with a financial advisor to identify suitable investment options matching your risk appetite.\n\n4. **Real Estate Crowdfunding**:\n   - Real estate crowdfunding platforms enable you to invest in properties with lower capital requirements compared to traditional real estate investments. This avenue can offer attractive returns while spreading risk across multiple properties.\n\n5. **Robo-Advisors**:\n   - Robo-advisors utilize algorithms to manage your investments based on your risk tolerance and financial goals. These automated platforms can provide a hands-off approach to growing your money efficiently.\n\nEach of these options presents unique opportunities for financial growth, tailored to your current financial standing and objective of maximizing your funds. Before proceeding, it's crucial to evaluate the associated risks, fees, and potential returns of each investment avenue to make informed decisions aligned with your long-term financial goals.\n\nFeel free to delve deeper into any specific investment option or seek further assistance in selecting the most suitable approach for growing your money.",
+      "agents_consulted": [
+        "Market Researcher Agent"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Market Researcher Agent processing",
+      "user_context": {
+        "username": "demo",
+        "email": "demo@example.com",
+        "full_name": "Demo User",
+        "session_id": "session_1749110522056_6hui27n7x",
+        "conversation_turns": 5,
+        "current_topic": "loan_comparison",
+        "last_agent_used": "Loan Advisor Agent",
+        "loan_purpose": "debt"
+      },
+      "confidence": 0.8,
+      "processing_time": 4.157108
+    }
+  ],
+  "current_topic": "market_research",
+  "active_goals": [],
+  "context_summary": "Discussion topics: loan_comparison, market_research",
+  "last_agent_used": "Market Researcher Agent",
+  "pending_actions": [],
+  "started_at": "2025-06-05 18:24:32.946568",
+  "last_activity": "2025-06-05 19:11:47.847304",
+  "is_voice_session": false
+}

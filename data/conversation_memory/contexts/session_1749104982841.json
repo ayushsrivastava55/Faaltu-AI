@@ -1,0 +1,71 @@
+{
+  "session_id": "session_1749104982841",
+  "user_profile": {
+    "user_id": "session_1749104982841",
+    "session_id": "session_1749104982841",
+    "monthly_income": null,
+    "age": null,
+    "employment_type": null,
+    "credit_score": null,
+    "existing_loans": [],
+    "monthly_expenses": null,
+    "savings_amount": null,
+    "loan_purposes": [
+      "personal"
+    ],
+    "preferred_tenure": null,
+    "max_emi_capacity": null,
+    "risk_tolerance": null,
+    "communication_style": null,
+    "frequently_asked_topics": [
+      "general_inquiry"
+    ],
+    "preferred_agents": [
+      "Loan Advisor Agent"
+    ],
+    "interaction_patterns": {
+      "total_interactions": 1,
+      "hours": {
+        "11": 1
+      },
+      "days": {
+        "Thursday": 1
+      }
+    },
+    "created_at": "2025-06-05 11:59:42.910066",
+    "last_updated": "2025-06-05 11:59:50.681400",
+    "total_interactions": 1
+  },
+  "conversation_history": [
+    {
+      "timestamp": "2025-06-05 11:59:50.681255",
+      "user_query": "what is personal loan",
+      "system_response": "A personal loan is a type of unsecured loan that allows individuals to borrow a fixed amount of money from a financial institution or lender. Unlike other types of loans (such as home loans or auto loans), personal loans typically do not require collateral. \n\nHere are some key features of personal loans:\n\n1. **Purpose**: Personal loans can be used for various purposes such as debt consolidation, home improvements, medical expenses, wedding costs, education fees, or any other personal needs.\n\n2. **Interest Rates**: Personal loan interest rates can be fixed or variable, depending on the lender. The interest rates are usually higher than secured loans like home equity loans because there is no collateral involved.\n\n3. **Loan Amount**: The loan amount for a personal loan can vary depending on the lender, your creditworthiness, and income. Lenders typically have a maximum amount they are willing to lend.\n\n4. **Repayment Period**: Personal loans have a fixed repayment period, usually ranging from 1 to 7 years. The borrower repays the loan in fixed monthly installments over the chosen tenure.\n\n5. **Credit Score**: Lenders assess the borrower's credit history and credit score to determine the interest rate and loan amount they qualify for. A higher credit score can lead to lower interest rates.\n\n6. **Fees and Charges**: Borrowers may incur fees such as processing fees, prepayment penalties, late payment fees, etc. It's essential to understand all the fees associated with the loan.\n\nPersonal loans can be an excellent financial tool for managing various expenses or consolidating higher interest debt. However, it's crucial to evaluate your financial situation, assess affordability, compare multiple loan options, and choose the one that best fits your needs before taking out a personal loan.",
+      "agents_consulted": [
+        "Loan Advisor Agent"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Loan Advisor Agent processing",
+      "user_context": {
+        "username": "demo",
+        "email": "demo@example.com",
+        "full_name": "Demo User",
+        "session_id": "session_1749104982841",
+        "conversation_turns": 0,
+        "current_topic": null,
+        "last_agent_used": null,
+        "loan_purpose": "personal"
+      },
+      "confidence": 0.8,
+      "processing_time": 5.779113
+    }
+  ],
+  "current_topic": "general_inquiry",
+  "active_goals": [],
+  "context_summary": "User asked about: what is personal loan...",
+  "last_agent_used": "Loan Advisor Agent",
+  "pending_actions": [],
+  "started_at": "2025-06-05 11:59:42.911017",
+  "last_activity": "2025-06-05 11:59:50.681296",
+  "is_voice_session": false
+}

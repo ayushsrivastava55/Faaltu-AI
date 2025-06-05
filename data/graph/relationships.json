@@ -1,0 +1,56 @@
+{
+  "nodes": [
+    {
+      "id": "voice_ai_assistant",
+      "type": "Product",
+      "name": "Voice AI Assistant"
+    },
+    {
+      "id": "faster_whisper",
+      "type": "Technology",
+      "name": "Faster Whisper"
+    },
+    {
+      "id": "fastapi",
+      "type": "Technology",
+      "name": "FastAPI"
+    },
+    {
+      "id": "speech_recognition",
+      "type": "Feature",
+      "name": "Speech Recognition"
+    },
+    {
+      "id": "ai_response",
+      "type": "Feature",
+      "name": "AI Response"
+    }
+  ],
+  "relationships": [
+    {
+      "from": "voice_ai_assistant",
+      "to": "faster_whisper",
+      "type": "USES"
+    },
+    {
+      "from": "voice_ai_assistant",
+      "to": "fastapi",
+      "type": "BUILT_WITH"
+    },
+    {
+      "from": "voice_ai_assistant",
+      "to": "speech_recognition",
+      "type": "PROVIDES"
+    },
+    {
+      "from": "voice_ai_assistant",
+      "to": "ai_response",
+      "type": "PROVIDES"
+    },
+    {
+      "from": "faster_whisper",
+      "to": "speech_recognition",
+      "type": "ENABLES"
+    }
+  ]
+}

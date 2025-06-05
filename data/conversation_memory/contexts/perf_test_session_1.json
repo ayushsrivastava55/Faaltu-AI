@@ -1,0 +1,131 @@
+{
+  "session_id": "perf_test_session_1",
+  "user_profile": {
+    "user_id": "perf_test_session_1",
+    "session_id": "perf_test_session_1",
+    "monthly_income": null,
+    "age": null,
+    "employment_type": "self_employed",
+    "credit_score": null,
+    "existing_loans": [],
+    "monthly_expenses": null,
+    "savings_amount": null,
+    "loan_purposes": [
+      "personal",
+      "business"
+    ],
+    "preferred_tenure": null,
+    "max_emi_capacity": null,
+    "risk_tolerance": null,
+    "communication_style": null,
+    "frequently_asked_topics": [
+      "loan_eligibility",
+      "general_inquiry"
+    ],
+    "preferred_agents": [
+      "Agent Orchestrator",
+      "Loan Advisor Agent"
+    ],
+    "interaction_patterns": {
+      "total_interactions": 4,
+      "hours": {
+        "5": 4
+      },
+      "days": {
+        "Thursday": 4
+      }
+    },
+    "created_at": "2025-06-05 05:08:22.132629",
+    "last_updated": "2025-06-05 05:08:48.677936",
+    "total_interactions": 4
+  },
+  "conversation_history": [
+    {
+      "timestamp": "2025-06-05 05:08:23.254146",
+      "user_query": "Hi, how are you?",
+      "system_response": "Hello! I'm here and ready to assist you with any loan-related queries you may have. How can I help you today?",
+      "agents_consulted": [
+        "Agent Orchestrator"
+      ],
+      "tools_used": [
+        "fast_path"
+      ],
+      "reasoning_approach": "Fast simple response",
+      "user_context": {
+        "test": true
+      },
+      "confidence": 0.8,
+      "processing_time": 1.121568
+    },
+    {
+      "timestamp": "2025-06-05 05:08:27.930788",
+      "user_query": "Analyze loan requirements and provide recommendations",
+      "system_response": "Thank you for reaching out for assistance with loan requirements analysis. To provide you with the best recommendations, I would need some information from you to build a comprehensive financial profile. \n\nCould you please share the following details:\n1. Monthly income and expenses breakdown\n2. Existing debts or liabilities\n3. Credit score (if available)\n4. Purpose of the loan\n5. Preferred loan amount and tenure\n\nOnce you provide these details, I can help you calculate optimal loan amounts, assess affordability, recommend suitable loan products, and provide strategic financial advice tailored to your specific situation. Let me know if you have any questions or need further clarification on the information needed.",
+      "agents_consulted": [
+        "Loan Advisor Agent"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Loan Advisor Agent processing",
+      "user_context": {
+        "test": true,
+        "session_id": "perf_test_session_1",
+        "conversation_turns": 1,
+        "current_topic": "general_inquiry",
+        "last_agent_used": "Agent Orchestrator",
+        "loan_purpose": "personal"
+      },
+      "confidence": 0.8,
+      "processing_time": 1.476656
+    },
+    {
+      "timestamp": "2025-06-05 05:08:37.392086",
+      "user_query": "Analyze loan requirements and provide recommendations",
+      "system_response": "Thank you for considering me to assist you with analyzing your loan requirements and providing recommendations. To begin, I can help build a comprehensive financial profile based on the information you provide. This will enable me to evaluate your eligibility for different loan options and suggest personalized recommendations.\n\nPlease provide details such as your income, expenses, existing loans (if any), credit score, and the purpose of the loan. This information will allow me to assess your financial situation accurately and offer you the most suitable loan products tailored to your needs. Let's start by gathering this essential data to create a detailed financial profile for you.",
+      "agents_consulted": [
+        "Loan Advisor Agent"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Loan Advisor Agent processing",
+      "user_context": {
+        "test": true,
+        "session_id": "perf_test_session_1",
+        "conversation_turns": 2,
+        "current_topic": "loan_eligibility",
+        "last_agent_used": "Loan Advisor Agent",
+        "employment_type": "self_employed",
+        "loan_purpose": "business"
+      },
+      "confidence": 0.8,
+      "processing_time": 1.318233
+    },
+    {
+      "timestamp": "2025-06-05 05:08:48.677804",
+      "user_query": "Analyze loan requirements and provide recommendations",
+      "system_response": "Thank you for considering me to assist you with analyzing your loan requirements and providing recommendations. To begin, I can help build a comprehensive financial profile based on the information you provide. Since you are self-employed, it's crucial to understand your income sources, expenses, and any existing debts.\n\nOnce we have a clear picture of your financial situation, we can calculate optimal loan amounts and tenures that align with your repayment capacity. This will involve analyzing your debt-to-income ratio and ensuring that the proposed loan installments fit comfortably within your budget.\n\nAdditionally, we can explore different loan options available to you, taking into account your credit score, market rates, and specific needs. By comparing these options, we can identify the best-suited loan product for you and provide guidance on improving your credit profile if needed.\n\nFeel free to share more details about your financial circumstances so we can proceed with a tailored analysis and provide you with strategic recommendations to meet your loan requirements effectively.",
+      "agents_consulted": [
+        "Loan Advisor Agent"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Loan Advisor Agent processing",
+      "user_context": {
+        "test": true,
+        "session_id": "perf_test_session_1",
+        "conversation_turns": 3,
+        "current_topic": "loan_eligibility",
+        "last_agent_used": "Loan Advisor Agent",
+        "employment_type": "self_employed",
+        "loan_purpose": "personal"
+      },
+      "confidence": 0.8,
+      "processing_time": 1.98717
+    }
+  ],
+  "current_topic": "loan_eligibility",
+  "active_goals": [],
+  "context_summary": "Discussion topics: loan_eligibility",
+  "last_agent_used": "Loan Advisor Agent",
+  "pending_actions": [],
+  "started_at": "2025-06-05 05:08:22.132908",
+  "last_activity": "2025-06-05 05:08:48.677887",
+  "is_voice_session": false
+}

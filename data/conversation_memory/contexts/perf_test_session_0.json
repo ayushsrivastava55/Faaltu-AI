@@ -1,0 +1,104 @@
+{
+  "session_id": "perf_test_session_0",
+  "user_profile": {
+    "user_id": "perf_test_session_0",
+    "session_id": "perf_test_session_0",
+    "monthly_income": 50000,
+    "age": null,
+    "employment_type": null,
+    "credit_score": null,
+    "existing_loans": [],
+    "monthly_expenses": null,
+    "savings_amount": null,
+    "loan_purposes": [],
+    "preferred_tenure": null,
+    "max_emi_capacity": null,
+    "risk_tolerance": null,
+    "communication_style": null,
+    "frequently_asked_topics": [
+      "loan_rates",
+      "loan_eligibility",
+      "general_inquiry"
+    ],
+    "preferred_agents": [
+      "Agent Orchestrator",
+      "Loan Advisor Agent"
+    ],
+    "interaction_patterns": {
+      "total_interactions": 3,
+      "hours": {
+        "5": 3
+      },
+      "days": {
+        "Thursday": 3
+      }
+    },
+    "created_at": "2025-06-05 05:08:25.116353",
+    "last_updated": "2025-06-05 05:08:46.687485",
+    "total_interactions": 3
+  },
+  "conversation_history": [
+    {
+      "timestamp": "2025-06-05 05:08:26.451550",
+      "user_query": "Hello, I need help",
+      "system_response": "Hello! I'm here to assist you with any loan-related questions or guidance you may need. Feel free to share more details about your query so I can provide you with personalized assistance.",
+      "agents_consulted": [
+        "Agent Orchestrator"
+      ],
+      "tools_used": [
+        "fast_path"
+      ],
+      "reasoning_approach": "Fast simple response",
+      "user_context": {
+        "test": true
+      },
+      "confidence": 0.8,
+      "processing_time": 1.335172
+    },
+    {
+      "timestamp": "2025-06-05 05:08:33.527608",
+      "user_query": "Analyze loan requirements and provide recommendations",
+      "system_response": "Thank you for reaching out for an analysis of your loan requirements. To provide you with the most accurate recommendations, I would need some information regarding your financial profile. Could you please share details such as your income, expenses, existing debts, credit score, and the purpose of the loan?\n\nWith this information, I can build a comprehensive financial profile, calculate optimal loan amounts and tenures, perform scenario analysis, assess affordability, and identify the best loan products tailored to your specific situation. This will enable me to provide you with strategic financial advice that aligns with your goals and ensures a positive impact on your financial future.\n\nPlease feel free to share the necessary details so we can proceed with a detailed analysis and personalized recommendations for you.",
+      "agents_consulted": [
+        "Loan Advisor Agent"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Loan Advisor Agent processing",
+      "user_context": {
+        "test": true,
+        "session_id": "perf_test_session_0",
+        "conversation_turns": 1,
+        "current_topic": "general_inquiry",
+        "last_agent_used": "Agent Orchestrator",
+        "income": 50000
+      },
+      "confidence": 0.8,
+      "processing_time": 1.629274
+    },
+    {
+      "timestamp": "2025-06-05 05:08:46.687459",
+      "user_query": "What are the current interest rates?",
+      "system_response": "Hello! I can help with that. To provide you with accurate interest rates tailored to your financial profile, could you please share more details about the type of loan you're interested in and the desired repayment period? Your monthly income of \u20b950,000 is also valuable information to ensure we find the best options for you.",
+      "agents_consulted": [
+        "Agent Orchestrator"
+      ],
+      "tools_used": [
+        "fast_path"
+      ],
+      "reasoning_approach": "Fast simple response",
+      "user_context": {
+        "test": true
+      },
+      "confidence": 0.8,
+      "processing_time": 1.289155
+    }
+  ],
+  "current_topic": "loan_rates",
+  "active_goals": [],
+  "context_summary": "Discussion topics: loan_rates, loan_eligibility",
+  "last_agent_used": "Agent Orchestrator",
+  "pending_actions": [],
+  "started_at": "2025-06-05 05:08:25.116480",
+  "last_activity": "2025-06-05 05:08:46.687476",
+  "is_voice_session": false
+}

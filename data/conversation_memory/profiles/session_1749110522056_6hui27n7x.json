@@ -1,0 +1,45 @@
+{
+  "user_id": "session_1749110522056_6hui27n7x",
+  "session_id": "session_1749110522056_6hui27n7x",
+  "monthly_income": null,
+  "age": null,
+  "employment_type": null,
+  "credit_score": null,
+  "existing_loans": [],
+  "monthly_expenses": null,
+  "savings_amount": null,
+  "loan_purposes": [
+    "personal",
+    "debt"
+  ],
+  "preferred_tenure": null,
+  "max_emi_capacity": null,
+  "risk_tolerance": null,
+  "communication_style": null,
+  "frequently_asked_topics": [
+    "market_research",
+    "loan_comparison",
+    "general_inquiry",
+    "loan_eligibility"
+  ],
+  "preferred_agents": [
+    "Loan Advisor Agent",
+    "Compliance Checker Agent",
+    "Document Processor Agent",
+    "Market Researcher Agent"
+  ],
+  "interaction_patterns": {
+    "total_interactions": 9,
+    "hours": {
+      "13": 2,
+      "14": 1,
+      "19": 6
+    },
+    "days": {
+      "Thursday": 9
+    }
+  },
+  "created_at": "2025-06-05 13:33:18.373406",
+  "last_updated": "2025-06-05 19:11:47.848039",
+  "total_interactions": 9
+}

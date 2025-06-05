@@ -1,0 +1,134 @@
+{
+  "session_id": "test_session_001",
+  "user_profile": {
+    "user_id": "test_user",
+    "session_id": "test_session_001",
+    "monthly_income": 75000,
+    "age": null,
+    "employment_type": "salaried",
+    "credit_score": 780,
+    "existing_loans": [],
+    "monthly_expenses": null,
+    "savings_amount": null,
+    "loan_purposes": [
+      "personal",
+      "home"
+    ],
+    "preferred_tenure": null,
+    "max_emi_capacity": null,
+    "risk_tolerance": null,
+    "communication_style": "detailed",
+    "frequently_asked_topics": [
+      "loan_rates",
+      "general_inquiry"
+    ],
+    "preferred_agents": [
+      "loan_advisor",
+      "market_researcher",
+      "compliance_checker"
+    ],
+    "interaction_patterns": {
+      "total_interactions": 4,
+      "hours": {
+        "4": 4
+      },
+      "days": {
+        "Thursday": 4
+      }
+    },
+    "created_at": "2025-06-05 04:52:59.106408",
+    "last_updated": "2025-06-05 04:52:59.108400",
+    "total_interactions": 4
+  },
+  "conversation_history": [
+    {
+      "timestamp": "2025-06-05 04:52:59.106802",
+      "user_query": "Hi, I earn 75000 per month and I'm looking for a personal loan",
+      "system_response": "Hello! I can help you with personal loan options. Based on your monthly income of \u20b975,000, you may be eligible for loans up to \u20b97.5 lakhs. What amount are you looking for?",
+      "agents_consulted": [
+        "loan_advisor"
+      ],
+      "tools_used": [
+        "income_analysis",
+        "eligibility_calculation"
+      ],
+      "reasoning_approach": "Financial profiling and eligibility assessment",
+      "user_context": {
+        "income": 75000,
+        "loan_purpose": "personal"
+      },
+      "confidence": 0.9,
+      "processing_time": 1.2
+    },
+    {
+      "timestamp": "2025-06-05 04:52:59.107863",
+      "user_query": "What are the current interest rates?",
+      "system_response": "Based on your profile with \u20b975,000 monthly income, you can get personal loan rates starting from 12.5% to 16.99% depending on your credit score. The exact rate will depend on your credit history and loan amount.",
+      "agents_consulted": [
+        "market_researcher",
+        "loan_advisor"
+      ],
+      "tools_used": [
+        "rate_research",
+        "personalized_pricing"
+      ],
+      "reasoning_approach": "Market research with personalized rate calculation",
+      "user_context": {
+        "income": 75000
+      },
+      "confidence": 0.85,
+      "processing_time": 2.1
+    },
+    {
+      "timestamp": "2025-06-05 04:52:59.108100",
+      "user_query": "I need 3 lakhs for home renovation and I'm a salaried employee",
+      "system_response": "Perfect! For a \u20b93 lakh home renovation loan with your \u20b975,000 salary, you have excellent affordability. As a salaried employee, you'll get preferential rates. Your EMI would be around \u20b97,500-8,500 for a 3-year tenure.",
+      "agents_consulted": [
+        "loan_advisor",
+        "compliance_checker"
+      ],
+      "tools_used": [
+        "emi_calculation",
+        "affordability_analysis",
+        "compliance_check"
+      ],
+      "reasoning_approach": "Comprehensive loan structuring with compliance verification",
+      "user_context": {
+        "income": 75000,
+        "employment_type": "salaried",
+        "loan_purpose": "home"
+      },
+      "confidence": 0.92,
+      "processing_time": 1.8
+    },
+    {
+      "timestamp": "2025-06-05 04:52:59.108394",
+      "user_query": "I also have a credit score of 780, can I get better rates?",
+      "system_response": "Excellent! With a credit score of 780 and your strong financial profile (\u20b975,000 income, salaried employment), you qualify for our premium rates starting from 10.5%. This could reduce your EMI to around \u20b97,200 for the \u20b93 lakh loan.",
+      "agents_consulted": [
+        "loan_advisor",
+        "market_researcher"
+      ],
+      "tools_used": [
+        "credit_scoring",
+        "premium_rate_calculation"
+      ],
+      "reasoning_approach": "Premium customer rate optimization",
+      "user_context": {
+        "income": 75000,
+        "employment_type": "salaried",
+        "credit_score": 780
+      },
+      "confidence": 0.95,
+      "processing_time": 1.5
+    }
+  ],
+  "current_topic": "loan_rates",
+  "active_goals": [],
+  "context_summary": "Discussion topics: loan_rates",
+  "last_agent_used": "loan_advisor",
+  "pending_actions": [],
+  "started_at": "2025-06-05 04:52:59.106648",
+  "last_activity": "2025-06-05 04:52:59.108398",
+  "is_voice_session": false
+}

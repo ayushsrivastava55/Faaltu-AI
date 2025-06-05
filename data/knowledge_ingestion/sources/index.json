@@ -1,0 +1,15 @@
+{
+  "sources": [
+    {
+      "source_id": "cffa0ed690bfa51a9bc3248765ad3754",
+      "source_type": "document",
+      "source_path": "provided JSON file",
+      "content_hash": "ae1619095826cad42915f78d1ed82e47",
+      "last_processed": "2025-06-05 16:49:52.228042",
+      "processing_status": "completed",
+      "extracted_insights": [],
+      "metadata": {}
+    }
+  ],
+  "last_updated": "2025-06-05T16:49:52.228231"
+}

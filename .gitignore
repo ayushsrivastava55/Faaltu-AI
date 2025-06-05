@@ -150,9 +150,9 @@ dmypy.json
 *.csv
 *.json.gz
 *.parquet
-data/datasets/
-data/raw/
-data/processed/
+
+
+
 models/
 checkpoints/
 
@@ -190,7 +190,7 @@ temp_audio/
 uploaded_audio/
 
 # Data directories
-data/
+
 uploads/
 downloads/
 logs/

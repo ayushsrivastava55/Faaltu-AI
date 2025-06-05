@@ -1,0 +1,67 @@
+{
+  "session_id": "test_4",
+  "user_profile": {
+    "user_id": "test_4",
+    "session_id": "test_4",
+    "monthly_income": 75000,
+    "age": null,
+    "employment_type": null,
+    "credit_score": null,
+    "existing_loans": [],
+    "monthly_expenses": null,
+    "savings_amount": null,
+    "loan_purposes": [],
+    "preferred_tenure": null,
+    "max_emi_capacity": null,
+    "risk_tolerance": null,
+    "communication_style": null,
+    "frequently_asked_topics": [
+      "loan_eligibility"
+    ],
+    "preferred_agents": [
+      "Loan Advisor Agent"
+    ],
+    "interaction_patterns": {
+      "total_interactions": 2,
+      "hours": {
+        "5": 1,
+        "11": 1
+      },
+      "days": {
+        "Thursday": 2
+      }
+    },
+    "created_at": "2025-06-05 05:14:08.259313",
+    "last_updated": "2025-06-05 11:27:11.918040",
+    "total_interactions": 2
+  },
+  "conversation_history": [
+    {
+      "timestamp": "2025-06-05 11:27:11.917909",
+      "user_query": "Analyze loan requirements and provide recommendations",
+      "system_response": "Based on the information provided in your query, let's dive into analyzing your financial situation and determining the best loan options for you.\n\n### Financial Analysis:\n- **Monthly Income: \u20b975,000**\n- **Financial Health Assessment**: Considering a healthy Debt-to-Income (DTI) ratio is typically below 35%, your DTI ratio is in a good range given your monthly income.\n- **Loan Eligibility Calculation**: With your monthly income, your loan eligibility could range from \u20b93,00,000 to \u20b95,00,000 depending on the lender's policies.\n\n### Loan Recommendations:\n1. **Personal Loan Option**\n   - **Loan Amount**: \u20b94,00,000\n   - **Tenure**: 36 months\n   - **Interest Rate**: 12% p.a.\n   - **Reasoning**: This option provides you with a substantial loan amount while keeping the tenure reasonable. The interest rate is competitive, and the EMI would be approximately \u20b913,299.\n   \n2. **Salary Advance or Overdraft Facility**\n   - **Credit Line**: Up to \u20b91,00,000\n   - **Interest Rate**: 15% p.a.\n   - **Reasoning**: This option gives you access to a smaller credit line for urgent needs or emergencies. The interest rate is slightly higher, but you only pay interest on the amount you use.\n\n### Actionable Next Steps:\n1. **Complete Loan Application**: Evaluate the terms and conditions of the recommended loan options and choose the one that aligns best with your needs.\n2. **Prepare Required Documents**: Gather necessary documents like income proofs, bank statements, and identity proofs for the loan application process.\n3. **Monitor Your Budget**: Stay diligent with your budget to ensure you can comfortably manage the EMIs without straining your finances.\n4. **Consider Credit Score Improvement**: Regularly check your credit score and work on improving it for better loan terms in the future.\n\nIf you have any specific preferences or constraints, feel free to share more details for a more tailored recommendation. Remember, borrowing responsibly is key to maintaining your financial health. Let me know if you need further assistance or have more questions.",
+      "agents_consulted": [
+        "Loan Advisor Agent"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Loan Advisor Agent single-call processing",
+      "user_context": {
+        "session_id": "test_4",
+        "conversation_turns": 0,
+        "current_topic": null,
+        "last_agent_used": null,
+        "income": 75000
+      },
+      "confidence": 0.85,
+      "processing_time": 2.8452
+    }
+  ],
+  "current_topic": "loan_eligibility",
+  "active_goals": [],
+  "context_summary": "User asked about: Analyze loan requirements and provide recommendations...",
+  "last_agent_used": "Loan Advisor Agent",
+  "pending_actions": [],
+  "started_at": "2025-06-05 11:27:09.072013",
+  "last_activity": "2025-06-05 11:27:11.918025",
+  "is_voice_session": false
+}

@@ -1,0 +1,65 @@
+{
+  "session_id": "test_rl_integration",
+  "user_profile": {
+    "user_id": "test_rl_integration",
+    "session_id": "test_rl_integration",
+    "monthly_income": null,
+    "age": null,
+    "employment_type": null,
+    "credit_score": null,
+    "existing_loans": [],
+    "monthly_expenses": null,
+    "savings_amount": null,
+    "loan_purposes": [],
+    "preferred_tenure": null,
+    "max_emi_capacity": null,
+    "risk_tolerance": null,
+    "communication_style": null,
+    "frequently_asked_topics": [
+      "loan_rates"
+    ],
+    "preferred_agents": [
+      "Knowledge Ingestion Agent"
+    ],
+    "interaction_patterns": {
+      "total_interactions": 1,
+      "hours": {
+        "17": 1
+      },
+      "days": {
+        "Thursday": 1
+      }
+    },
+    "created_at": "2025-06-05 17:52:52.646056",
+    "last_updated": "2025-06-05 17:52:58.920579",
+    "total_interactions": 1
+  },
+  "conversation_history": [
+    {
+      "timestamp": "2025-06-05 17:52:58.920453",
+      "user_query": "Leverage knowledge_ingestion agent to continuously learn and improve the conversation strategy",
+      "system_response": "I apologize, but I encountered an error processing your request: Failed to parse operation request",
+      "agents_consulted": [
+        "Knowledge Ingestion Agent"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Knowledge Ingestion Agent error handling",
+      "user_context": {
+        "session_id": "test_rl_integration",
+        "conversation_turns": 0,
+        "current_topic": null,
+        "last_agent_used": null
+      },
+      "confidence": 0.1,
+      "processing_time": 1.576518
+    }
+  ],
+  "current_topic": "loan_rates",
+  "active_goals": [],
+  "context_summary": "User asked about: Leverage knowledge_ingestion agent to continuously learn and improve the conversation strategy...",
+  "last_agent_used": "Knowledge Ingestion Agent",
+  "pending_actions": [],
+  "started_at": "2025-06-05 17:52:52.648408",
+  "last_activity": "2025-06-05 17:52:58.920489",
+  "is_voice_session": false
+}

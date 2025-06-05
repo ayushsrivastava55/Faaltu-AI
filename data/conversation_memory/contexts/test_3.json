@@ -1,0 +1,63 @@
+{
+  "session_id": "test_3",
+  "user_profile": {
+    "user_id": "test_3",
+    "session_id": "test_3",
+    "monthly_income": null,
+    "age": null,
+    "employment_type": null,
+    "credit_score": null,
+    "existing_loans": [],
+    "monthly_expenses": null,
+    "savings_amount": null,
+    "loan_purposes": [],
+    "preferred_tenure": null,
+    "max_emi_capacity": null,
+    "risk_tolerance": null,
+    "communication_style": null,
+    "frequently_asked_topics": [
+      "loan_rates"
+    ],
+    "preferred_agents": [
+      "Agent Orchestrator"
+    ],
+    "interaction_patterns": {
+      "total_interactions": 2,
+      "hours": {
+        "5": 1,
+        "11": 1
+      },
+      "days": {
+        "Thursday": 2
+      }
+    },
+    "created_at": "2025-06-05 05:14:06.861377",
+    "last_updated": "2025-06-05 11:27:09.070356",
+    "total_interactions": 2
+  },
+  "conversation_history": [
+    {
+      "timestamp": "2025-06-05 11:27:09.070328",
+      "user_query": "What are current interest rates?",
+      "system_response": "Hello! I'm here to help with your loan inquiries. To provide you with the most accurate current interest rates, I'll need some additional details. Could you let me know the type of loan you're interested in, the loan amount, and the repayment term? This way, I can offer personalized information tailored to your needs.",
+      "agents_consulted": [
+        "Agent Orchestrator"
+      ],
+      "tools_used": [
+        "fast_path"
+      ],
+      "reasoning_approach": "Fast simple response",
+      "user_context": {},
+      "confidence": 0.8,
+      "processing_time": 1.864622
+    }
+  ],
+  "current_topic": "loan_rates",
+  "active_goals": [],
+  "context_summary": "User asked about: What are current interest rates?...",
+  "last_agent_used": "Agent Orchestrator",
+  "pending_actions": [],
+  "started_at": "2025-06-05 11:27:07.207584",
+  "last_activity": "2025-06-05 11:27:09.070339",
+  "is_voice_session": false
+}

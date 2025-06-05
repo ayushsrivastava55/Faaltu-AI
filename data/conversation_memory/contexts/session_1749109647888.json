@@ -1,0 +1,88 @@
+{
+  "session_id": "session_1749109647888",
+  "user_profile": {
+    "user_id": "session_1749109647888",
+    "session_id": "session_1749109647888",
+    "monthly_income": null,
+    "age": null,
+    "employment_type": null,
+    "credit_score": null,
+    "existing_loans": [],
+    "monthly_expenses": null,
+    "savings_amount": null,
+    "loan_purposes": [
+      "personal"
+    ],
+    "preferred_tenure": null,
+    "max_emi_capacity": null,
+    "risk_tolerance": null,
+    "communication_style": null,
+    "frequently_asked_topics": [
+      "loan_application",
+      "general_inquiry"
+    ],
+    "preferred_agents": [
+      "Loan Advisor Agent",
+      "Application Assistant Agent"
+    ],
+    "interaction_patterns": {
+      "total_interactions": 2,
+      "hours": {
+        "13": 2
+      },
+      "days": {
+        "Thursday": 2
+      }
+    },
+    "created_at": "2025-06-05 13:17:27.947928",
+    "last_updated": "2025-06-05 13:17:33.828666",
+    "total_interactions": 2
+  },
+  "conversation_history": [
+    {
+      "timestamp": "2025-06-05 13:17:31.922549",
+      "user_query": "Greet the user and ask how you can assist them with their lending needs",
+      "system_response": "Hello! Thank you for reaching out to LendenClub for assistance with your lending needs. I'm here to help you navigate through the world of loans and make informed financial decisions. \n\nHow can I assist you today? Are you looking for a specific type of loan, need help understanding your loan options, or require guidance on improving your credit profile? Feel free to share any information that can help me better understand your current financial situation and lending requirements.",
+      "agents_consulted": [
+        "Loan Advisor Agent"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Loan Advisor Agent processing",
+      "user_context": {
+        "session_id": "session_1749109647888",
+        "conversation_turns": 0,
+        "current_topic": null,
+        "last_agent_used": null
+      },
+      "confidence": 0.8,
+      "processing_time": 1.185533
+    },
+    {
+      "timestamp": "2025-06-05 13:17:33.828621",
+      "user_query": "Based on user response, provide personalized loan recommendations or offer step-by-step application guidance",
+      "system_response": "Hello! Thank you for reaching out to LendenClub for assistance with your lending needs. I'm here to help you navigate through the world of loans and make informed financial decisions. \n\nBased on your previous message, it seems like you might be seeking assistance or information related to lending. To better assist you, could you please provide more details about the type of loan you are interested in, your specific financial needs, or any concerns you have regarding the lending process?\n\nFeel free to share any information that can help me provide personalized loan recommendations or offer step-by-step application guidance. Your input will help me tailor my assistance to your unique situation.",
+      "agents_consulted": [
+        "Application Assistant Agent"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Application Assistant Agent processing",
+      "user_context": {
+        "session_id": "session_1749109647888",
+        "conversation_turns": 1,
+        "current_topic": "general_inquiry",
+        "last_agent_used": "Loan Advisor Agent",
+        "loan_purpose": "personal"
+      },
+      "confidence": 0.8,
+      "processing_time": 1.903174
+    }
+  ],
+  "current_topic": "loan_application",
+  "active_goals": [],
+  "context_summary": "Discussion topics: loan_application",
+  "last_agent_used": "Application Assistant Agent",
+  "pending_actions": [],
+  "started_at": "2025-06-05 13:17:27.949510",
+  "last_activity": "2025-06-05 13:17:33.828646",
+  "is_voice_session": false
+}

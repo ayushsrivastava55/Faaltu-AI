@@ -1,0 +1,20 @@
+{
+  "voice ai assistant": "A conversational AI system that processes voice input and provides intelligent responses using speech recognition and natural language processing.",
+  "faster whisper": "An optimized implementation of OpenAI's Whisper model for fast and accurate speech recognition.",
+  "speech recognition": "Technology that converts spoken language into text, enabling voice-based interactions with computer systems.",
+  "natural language processing": "A field of AI that helps computers understand, interpret and generate human language in a valuable way.",
+  "fastapi": "A modern, fast web framework for building APIs with Python based on standard Python type hints.",
+  "lendenclub": "India's largest peer-to-peer lending platform that connects borrowers with lenders, offering personal loans, business loans, and education loans at competitive interest rates.",
+  "peer to peer lending": "A method of debt financing that enables individuals to borrow and lend money without the use of an official financial institution as an intermediary.",
+  "personal loan": "Unsecured loans offered by LendenClub for personal needs like medical expenses, travel, education, with amounts from ₹25,000 to ₹10,00,000 and tenure up to 60 months.",
+  "business loan": "Loans for business expansion, working capital, equipment purchase with amounts from ₹1,00,000 to ₹50,00,000 and competitive interest rates.",
+  "education loan": "Loans for higher education in India and abroad with amounts from ₹50,000 to ₹20,00,000 and flexible repayment options.",
+  "loan eligibility": "Basic criteria include minimum age, income requirements, credit score above 650, employment stability, and proper documentation.",
+  "emi calculation": "Equated Monthly Installment calculated using principal amount, interest rate, and tenure using the standard EMI formula.",
+  "credit score": "A numerical representation of creditworthiness ranging from 300-900, with 650+ required for most LendenClub loans.",
+  "interest rates": "LendenClub offers competitive rates starting from 10.99% for personal loans, 12.99% for business loans, and 8.99% for education loans.",
+  "loan documentation": "Required documents typically include PAN card, Aadhaar card, income proof, bank statements, and employment verification.",
+  "loan processing time": "Personal loans can be processed within 24-48 hours, while business loans may take 3-7 days depending on complexity.",
+  "prepayment": "Borrowers can prepay loans anytime after 6 EMIs, though prepayment charges may apply as per loan agreement.",
+  "rbi guidelines": "LendenClub operates under RBI guidelines for peer-to-peer lending platforms and is registered as an NBFC-P2P."
+}

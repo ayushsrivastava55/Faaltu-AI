@@ -1,0 +1,94 @@
+{
+  "session_id": "scenario_1_first_time_user",
+  "user_profile": {
+    "user_id": "scenario_1_first_time_user",
+    "session_id": "scenario_1_first_time_user",
+    "monthly_income": 50000,
+    "age": null,
+    "employment_type": null,
+    "credit_score": null,
+    "existing_loans": [],
+    "monthly_expenses": null,
+    "savings_amount": null,
+    "loan_purposes": [
+      "personal"
+    ],
+    "preferred_tenure": null,
+    "max_emi_capacity": null,
+    "risk_tolerance": null,
+    "communication_style": "detailed",
+    "frequently_asked_topics": [
+      "general_inquiry"
+    ],
+    "preferred_agents": [
+      "loan_advisor"
+    ],
+    "interaction_patterns": {
+      "total_interactions": 3,
+      "hours": {
+        "4": 3
+      },
+      "days": {
+        "Thursday": 3
+      }
+    },
+    "created_at": "2025-06-05 04:52:59.109043",
+    "last_updated": "2025-06-05 04:52:59.109785",
+    "total_interactions": 3
+  },
+  "conversation_history": [
+    {
+      "timestamp": "2025-06-05 04:52:59.109270",
+      "user_query": "Hi, I'm looking for information about personal loans",
+      "system_response": "Hello! I'd be happy to help you with personal loan information. To provide you with the most relevant options, could you tell me about your monthly income and what you plan to use the loan for?",
+      "agents_consulted": [
+        "loan_advisor"
+      ],
+      "tools_used": [],
+      "reasoning_approach": null,
+      "user_context": {},
+      "confidence": 0.85,
+      "processing_time": 1.5
+    },
+    {
+      "timestamp": "2025-06-05 04:52:59.109490",
+      "user_query": "I earn around 50000 per month and need money for my wedding",
+      "system_response": "Congratulations on your upcoming wedding! With a monthly income of \u20b950,000, you're eligible for personal loans up to \u20b95 lakhs. Wedding loans typically have good rates. What amount are you considering?",
+      "agents_consulted": [
+        "loan_advisor"
+      ],
+      "tools_used": [],
+      "reasoning_approach": null,
+      "user_context": {
+        "income": 50000,
+        "loan_purpose": "personal"
+      },
+      "confidence": 0.85,
+      "processing_time": 1.5
+    },
+    {
+      "timestamp": "2025-06-05 04:52:59.109780",
+      "user_query": "I need about 2 lakhs. What would be the EMI?",
+      "system_response": "For a \u20b92 lakh personal loan with your income, the EMI would be approximately \u20b94,500-5,500 depending on the tenure and interest rate. For 3 years at 14% interest, it would be around \u20b94,800 per month, which is well within your affordability.",
+      "agents_consulted": [
+        "loan_advisor"
+      ],
+      "tools_used": [],
+      "reasoning_approach": null,
+      "user_context": {
+        "income": 50000,
+        "loan_amount": 200000
+      },
+      "confidence": 0.85,
+      "processing_time": 1.5
+    }
+  ],
+  "current_topic": "general_inquiry",
+  "active_goals": [],
+  "context_summary": "General conversation with 3 exchanges",
+  "last_agent_used": "loan_advisor",
+  "pending_actions": [],
+  "started_at": "2025-06-05 04:52:59.109152",
+  "last_activity": "2025-06-05 04:52:59.109783",
+  "is_voice_session": false
+}
