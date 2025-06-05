@@ -1,0 +1,14 @@
+# Neo4j MCP Integration Dependencies
+# Install these additional packages to enable Neo4j graph storage via MCP
+
+# PydanticAI with MCP support
+pydantic-ai[mcp]>=0.0.14
+
+# Neo4j MCP Memory Server
+mcp-neo4j-memory>=0.1.3
+
+# Neo4j Python Driver
+neo4j>=5.14.1
+
+# Additional MCP dependencies
+httpx>=0.25.2 

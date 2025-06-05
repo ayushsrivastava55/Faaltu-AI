@@ -1,0 +1,39 @@
+# Core FastAPI and Web
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+python-dotenv==1.0.0
+
+# AI and ML
+openai==1.3.6
+pydantic-ai[mcp]==0.0.14
+pydantic==2.5.0
+
+# MCP Neo4j Integration
+mcp-neo4j-memory>=0.1.3
+
+# Voice Processing
+faster-whisper==0.10.0
+torch==2.1.1
+torchaudio==2.1.1
+
+# Database and Storage
+neo4j==5.14.1
+
+# HTTP and Requests
+requests==2.31.0
+httpx==0.25.2
+
+# Data Processing
+numpy==1.24.3
+# PydanticAI with MCP support
+pydantic-ai[mcp]>=0.0.14
+
+# Neo4j MCP Memory Server
+mcp-neo4j-memory>=0.1.3
+
+# Neo4j Python Driver
+neo4j>=5.14.1
+
+# Additional MCP dependencies
+httpx>=0.25.2 

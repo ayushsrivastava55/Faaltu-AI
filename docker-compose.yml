@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  voice-ai:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data # Persist data between restarts
+    environment:
+      - PORT=8080
+      - JWT_SECRET=realistic-voice-ai-development-secret
+    restart: unless-stopped
+
+    # Resource limits for development
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: "1.0"
