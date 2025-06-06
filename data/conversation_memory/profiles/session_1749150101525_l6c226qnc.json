@@ -1,0 +1,35 @@
+{
+  "user_id": "session_1749150101525_l6c226qnc",
+  "session_id": "session_1749150101525_l6c226qnc",
+  "monthly_income": null,
+  "age": null,
+  "employment_type": null,
+  "credit_score": null,
+  "existing_loans": [],
+  "monthly_expenses": null,
+  "savings_amount": null,
+  "loan_purposes": [],
+  "preferred_tenure": null,
+  "max_emi_capacity": null,
+  "risk_tolerance": null,
+  "communication_style": null,
+  "frequently_asked_topics": [
+    "emi_calculation",
+    "general_inquiry"
+  ],
+  "preferred_agents": [
+    "Market Researcher Agent"
+  ],
+  "interaction_patterns": {
+    "total_interactions": 2,
+    "hours": {
+      "0": 2
+    },
+    "days": {
+      "Friday": 2
+    }
+  },
+  "created_at": "2025-06-06 00:31:47.076570",
+  "last_updated": "2025-06-06 00:33:25.183632",
+  "total_interactions": 2
+}

@@ -1,0 +1,90 @@
+{
+  "session_id": "session_1749150101525_l6c226qnc",
+  "user_profile": {
+    "user_id": "session_1749150101525_l6c226qnc",
+    "session_id": "session_1749150101525_l6c226qnc",
+    "monthly_income": null,
+    "age": null,
+    "employment_type": null,
+    "credit_score": null,
+    "existing_loans": [],
+    "monthly_expenses": null,
+    "savings_amount": null,
+    "loan_purposes": [],
+    "preferred_tenure": null,
+    "max_emi_capacity": null,
+    "risk_tolerance": null,
+    "communication_style": null,
+    "frequently_asked_topics": [
+      "emi_calculation",
+      "general_inquiry"
+    ],
+    "preferred_agents": [
+      "Market Researcher Agent"
+    ],
+    "interaction_patterns": {
+      "total_interactions": 2,
+      "hours": {
+        "0": 2
+      },
+      "days": {
+        "Friday": 2
+      }
+    },
+    "created_at": "2025-06-06 00:31:47.076570",
+    "last_updated": "2025-06-06 00:33:25.183632",
+    "total_interactions": 2
+  },
+  "conversation_history": [
+    {
+      "timestamp": "2025-06-06 00:33:13.512713",
+      "user_query": "I want to invest 20k",
+      "system_response": "I see you are looking to invest $20,000. Before proceeding, it's important to understand your investment goals, risk tolerance, and investment horizon. Are you looking for short-term gains, long-term growth, or a balance of both? Additionally, do you have any specific preferences in terms of investment vehicles (stocks, bonds, mutual funds, ETFs, real estate, etc.) or risk levels?\n\nOnce you provide more details about your investment objectives, I can offer tailored suggestions and insights regarding potential investment opportunities that align with your goals.",
+      "agents_consulted": [
+        "Market Researcher Agent"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Market Researcher Agent processing",
+      "user_context": {
+        "username": "demo",
+        "email": "demo@example.com",
+        "full_name": "Demo User",
+        "session_id": "session_1749150101525_l6c226qnc",
+        "conversation_turns": 0,
+        "current_topic": null,
+        "last_agent_used": null
+      },
+      "confidence": 0.8,
+      "processing_time": 1.276777
+    },
+    {
+      "timestamp": "2025-06-06 00:33:25.183616",
+      "user_query": "what amount I want to invest?",
+      "system_response": "It looks like you are exploring investment options. As a financial market research analyst, I can assist you in making informed decisions regarding your investments. If you can provide me with more details such as your investment goals, risk tolerance, and time horizon, I can help you identify potential opportunities in the market and provide recommendations based on your profile. Feel free to share more information so we can tailor our research and analysis to best suit your needs.",
+      "agents_consulted": [
+        "Market Researcher Agent"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Market Researcher Agent processing",
+      "user_context": {
+        "username": "demo",
+        "email": "demo@example.com",
+        "full_name": "Demo User",
+        "session_id": "session_1749150101525_l6c226qnc",
+        "conversation_turns": 1,
+        "current_topic": "general_inquiry",
+        "last_agent_used": "Market Researcher Agent"
+      },
+      "confidence": 0.8,
+      "processing_time": 1.197291
+    }
+  ],
+  "current_topic": "emi_calculation",
+  "active_goals": [],
+  "context_summary": "Discussion topics: emi_calculation",
+  "last_agent_used": "Market Researcher Agent",
+  "pending_actions": [],
+  "started_at": "2025-06-06 00:31:47.076885",
+  "last_activity": "2025-06-06 00:33:25.183626",
+  "is_voice_session": false
+}
