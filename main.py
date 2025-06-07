@@ -13,9 +13,18 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
 import hashlib
 import hmac
+import hashlib
+import requests
 import asyncio
-from fastapi import Depends
-
+from fastapi import Depends, Form, UploadFile, File, HTTPException, status
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+import secrets
+from fastapi import FastAPI, HTTPException, status, Depends, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from pydantic import BaseModel, Field
+import uvicorn
 # Configure logging first, before any other code that might use it
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -38,14 +47,7 @@ try:
 except ImportError:
     pass  # python-dotenv not available
 
-from fastapi import FastAPI, HTTPException, status, Depends, Request, UploadFile, File
-from fastapi.middleware.cors import CORSMiddleware
-# from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-from pydantic import BaseModel, Field
-import uvicorn
-
+from fastapi import UploadFile, File
 # OpenAI integration
 try:
     from openai import OpenAI
@@ -69,6 +71,15 @@ try:
 except ImportError:
     NEO4J_AVAILABLE = False
     print("neo4j not available, using simple graph storage")
+
+# Web scraping imports
+try:
+    import requests
+    from bs4 import BeautifulSoup
+    SCRAPING_AVAILABLE = True
+except ImportError:
+    SCRAPING_AVAILABLE = False
+    print("Web scraping not available - install requests and beautifulsoup4")
 
 # Agent framework integration
 try:
@@ -154,7 +165,102 @@ class QueryResponse(BaseModel):
 #     user_info: Dict[str, Any]
 #     expires_in: int
 
+
+
 # Simple File-Based Storage
+
+class EnhancedConfig(Config):
+    # Add admin password (should be in environment variable)
+    ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")  # Change this!
+    MAX_UPLOAD_SIZE = 10 * 1024 * 1024  # 10MB limit
+    ALLOWED_AUDIO_FORMATS = [".mp3", ".wav", ".m4a", ".ogg"]
+    ALLOWED_DOCUMENT_FORMATS = [".json", ".txt", ".md", ".pdf"]
+
+# Admin authentication
+security = HTTPBasic()
+
+def verify_admin_password(credentials: HTTPBasicCredentials = Depends(security)):
+    """Verify admin credentials for upload access"""
+    correct_password = secrets.compare_digest(
+        credentials.password, EnhancedConfig.ADMIN_PASSWORD
+    )
+    correct_username = secrets.compare_digest(
+        credentials.username, "admin"
+    )
+    
+    if not (correct_username and correct_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid admin credentials",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return credentials.username
+
+# Data models for uploads
+class URLUploadRequest(BaseModel):
+    url: str = Field(..., description="Website URL to scrape")
+    category: str = Field(default="general", description="Content category")
+
+class UploadResponse(BaseModel):
+    success: bool
+    message: str
+    file_path: Optional[str] = None
+    processed_content: Optional[Dict[str, Any]] = None
+
+# Web scraping service
+class WebScrapingService:
+    """Service for scraping website content"""
+    
+    def __init__(self):
+        self.session = requests.Session()
+        self.session.headers.update({
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        })
+    
+    def scrape_url(self, url: str) -> Dict[str, Any]:
+        """Scrape content from a website URL"""
+        if not SCRAPING_AVAILABLE:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Web scraping service not available"
+            )
+        
+        try:
+            # Validate URL
+            if not url.startswith(('http://', 'https://')):
+                url = 'https://' + url
+            
+            response = self.session.get(url, timeout=30)
+            response.raise_for_status()
+            
+            soup = BeautifulSoup(response.content, 'html.parser')
+            
+            # Extract text content
+            title = soup.find('title')
+            title_text = title.get_text().strip() if title else "No Title"
+            
+            # Remove script and style elements
+            for script in soup(["script", "style"]):
+                script.decompose()
+            
+            # Extract main content
+            content_tags = soup.find_all(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li'])
+            content_text = ' '.join([tag.get_text().strip() for tag in content_tags])
+            
+            return {
+                "url": url,
+                "title": title_text,
+                "content": content_text,
+                "scraped_at": datetime.now().isoformat(),
+                "content_length": len(content_text)
+            }
+            
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Failed to scrape URL: {str(e)}"
+            )
+
 class SimpleStorage:
     def __init__(self):
         self.DATA_DIR = Config.DATA_DIR  # Add DATA_DIR attribute for conversation memory
@@ -257,6 +363,47 @@ class SimpleStorage:
             "response": "I'm currently using advanced AI reasoning to help you. If you're seeing this message, please try rephrasing your question or contact support.",
             "confidence": 0.2,
             "source": "fallback_knowledge"
+        }
+    
+class VoiceProcessor:
+    def __init__(self):
+        self.model = None
+        if WHISPER_AVAILABLE:
+            try:
+                self.model = WhisperModel("base", device="cpu", compute_type="int8")
+                logger.info("Faster Whisper model loaded successfully")
+            except Exception as e:
+                logger.error(f"Failed to load Whisper model: {e}")
+                self.model = None
+    
+    def transcribe(self, audio_file_path: str, language: str = "en") -> Dict[str, Any]:
+        start_time = time.time()
+        
+        if self.model:
+            try:
+                segments, info = self.model.transcribe(
+                    audio_file_path,
+                    language=language if language != "auto" else None,
+                    beam_size=5
+                )
+                
+                text = " ".join([segment.text for segment in segments])
+                
+                return {
+                    "text": text.strip(),
+                    "language": info.language,
+                    "confidence": 0.9,
+                    "processing_time": time.time() - start_time
+                }
+            except Exception as e:
+                logger.error(f"Transcription error: {e}")
+        
+        # Fallback for demo
+        return {
+            "text": "This is a demo transcription since Faster Whisper is not available.",
+            "language": language,
+            "confidence": 0.5,
+            "processing_time": time.time() - start_time
         }
 
 # Graph Intelligence (Neo4j MCP integration)
@@ -448,48 +595,6 @@ class GraphIntelligence:
         if self.driver:
             self.driver.close()
 
-# Voice Processing
-class VoiceProcessor:
-    def __init__(self):
-        self.model = None
-        if WHISPER_AVAILABLE:
-            try:
-                self.model = WhisperModel("base", device="cpu", compute_type="int8")
-                logger.info("Faster Whisper model loaded successfully")
-            except Exception as e:
-                logger.error(f"Failed to load Whisper model: {e}")
-                self.model = None
-    
-    def transcribe(self, audio_file_path: str, language: str = "en") -> Dict[str, Any]:
-        start_time = time.time()
-        
-        if self.model:
-            try:
-                segments, info = self.model.transcribe(
-                    audio_file_path,
-                    language=language if language != "auto" else None,
-                    beam_size=5
-                )
-                
-                text = " ".join([segment.text for segment in segments])
-                
-                return {
-                    "text": text.strip(),
-                    "language": info.language,
-                    "confidence": 0.9,
-                    "processing_time": time.time() - start_time
-                }
-            except Exception as e:
-                logger.error(f"Transcription error: {e}")
-        
-        # Fallback for demo
-        return {
-            "text": "This is a demo transcription since Faster Whisper is not available.",
-            "language": language,
-            "confidence": 0.5,
-            "processing_time": time.time() - start_time
-        }
-
 # AI Response Service
 class AIResponseService:
     def __init__(self):
@@ -595,6 +700,184 @@ Your knowledge base includes:
             "processing_time": processing_time
         }
 
+# Global instances
+storage = SimpleStorage()
+voice_processor = VoiceProcessor()
+graph_intelligence = GraphIntelligence()
+ai_service = AIResponseService()
+
+
+# File processing service
+class FileProcessingService:
+    """Service for processing uploaded files"""
+    
+    def __init__(self, storage_service):
+        self.storage = storage_service
+        self.upload_dir = Path(storage_service.DATA_DIR) / "knowledge_ingestion"
+        
+        # Ensure upload directories exist
+        (self.upload_dir / "documents").mkdir(parents=True, exist_ok=True)
+        (self.upload_dir / "audio").mkdir(parents=True, exist_ok=True)
+        (self.upload_dir / "web_cache").mkdir(parents=True, exist_ok=True)
+        (self.upload_dir / "insights").mkdir(parents=True, exist_ok=True)
+        (self.upload_dir / "sources").mkdir(parents=True, exist_ok=True)
+    
+    def validate_file(self, file: UploadFile) -> bool:
+        """Validate uploaded file"""
+        if not file.filename:
+            return False
+        
+        file_ext = Path(file.filename).suffix.lower()
+        
+        # Check file size
+        if hasattr(file, 'size') and file.size > EnhancedConfig.MAX_UPLOAD_SIZE:
+            return False
+        
+        # Check file type
+        if file_ext in EnhancedConfig.ALLOWED_DOCUMENT_FORMATS:
+            return True
+        elif file_ext in EnhancedConfig.ALLOWED_AUDIO_FORMATS:
+            return True
+        
+        return False
+    
+    async def process_json_file(self, file: UploadFile) -> Dict[str, Any]:
+        """Process JSON file upload"""
+        content = await file.read()
+        
+        try:
+            json_data = json.loads(content.decode('utf-8'))
+            
+            # Save to documents folder
+            filename = f"uploaded_{int(time.time())}_{file.filename}"
+            file_path = self.upload_dir / "documents" / filename
+            
+            with open(file_path, 'w', encoding='utf-8') as f:
+                json.dump(json_data, f, indent=2, ensure_ascii=False)
+            
+            # Create source metadata
+            await self._create_source_metadata(filename, "json", {
+                "original_filename": file.filename,
+                "content_type": file.content_type,
+                "size": len(content),
+                "keys_count": len(json_data) if isinstance(json_data, dict) else None
+            })
+            
+            return {
+                "file_path": str(file_path),
+                "content_preview": str(json_data)[:200] + "..." if len(str(json_data)) > 200 else str(json_data),
+                "content_type": "json"
+            }
+            
+        except json.JSONDecodeError as e:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid JSON file: {str(e)}"
+            )
+    
+    async def process_audio_file(self, file: UploadFile) -> Dict[str, Any]:
+        """Process audio file upload"""
+        content = await file.read()
+        
+        # Save to audio folder
+        filename = f"uploaded_{int(time.time())}_{file.filename}"
+        file_path = self.upload_dir / "audio" / filename
+        
+        with open(file_path, 'wb') as f:
+            f.write(content)
+        
+        # Create source metadata
+        await self._create_source_metadata(filename, "audio", {
+            "original_filename": file.filename,
+            "content_type": file.content_type,
+            "size": len(content)
+        })
+        
+        return {
+            "file_path": str(file_path),
+            "content_preview": f"Audio file: {file.filename} ({len(content)} bytes)",
+            "content_type": "audio"
+        }
+    
+    async def process_text_file(self, file: UploadFile) -> Dict[str, Any]:
+        """Process text/markdown file upload"""
+        content = await file.read()
+        text_content = content.decode('utf-8')
+        
+        # Save to documents folder
+        filename = f"uploaded_{int(time.time())}_{file.filename}"
+        file_path = self.upload_dir / "documents" / filename
+        
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(text_content)
+        
+        # Create source metadata
+        await self._create_source_metadata(filename, "document", {
+            "original_filename": file.filename,
+            "content_type": file.content_type,
+            "size": len(content),
+            "line_count": len(text_content.split('\n'))
+        })
+        
+        return {
+            "file_path": str(file_path),
+            "content_preview": text_content[:200] + "..." if len(text_content) > 200 else text_content,
+            "content_type": "text"
+        }
+    
+    async def save_scraped_content(self, scraped_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Save scraped website content"""
+        filename = f"scraped_{int(time.time())}_{hashlib.md5(scraped_data['url'].encode()).hexdigest()[:8]}.json"
+        file_path = self.upload_dir / "web_cache" / filename
+        
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(scraped_data, f, indent=2, ensure_ascii=False)
+        
+        # Create source metadata
+        await self._create_source_metadata(filename, "web", {
+            "url": scraped_data["url"],
+            "title": scraped_data["title"],
+            "content_length": scraped_data["content_length"]
+        })
+        
+        return {
+            "file_path": str(file_path),
+            "content_preview": scraped_data["content"][:200] + "..." if len(scraped_data["content"]) > 200 else scraped_data["content"],
+            "content_type": "web"
+        }
+    
+    async def _create_source_metadata(self, filename: str, source_type: str, metadata: Dict[str, Any]):
+        """Create metadata for uploaded source"""
+        sources_file = self.upload_dir / "sources" / "index.json"
+        
+        # Load existing sources
+        sources_data = {"sources": []}
+        if sources_file.exists():
+            try:
+                sources_data = json.loads(sources_file.read_text())
+            except:
+                pass
+        
+        # Add new source
+        source_entry = {
+            "filename": filename,
+            "source_type": source_type,
+            "uploaded_at": datetime.now().isoformat(),
+            "metadata": metadata
+        }
+        
+        sources_data["sources"].append(source_entry)
+        
+        # Save updated sources
+        with open(sources_file, 'w', encoding='utf-8') as f:
+            json.dump(sources_data, f, indent=2, ensure_ascii=False)
+
+web_scraper = WebScrapingService()
+file_processor = FileProcessingService(storage)
+
+
+# Voice Processing
+
 # Agent Management System
 class AgentManager:
     """Manager for agentic AI processing with conversation memory"""
@@ -697,11 +980,6 @@ class AgentManager:
                 else:
                     self.conversation_memory.cleanup_expired_contexts()
 
-# Global instances
-storage = SimpleStorage()
-voice_processor = VoiceProcessor()
-graph_intelligence = GraphIntelligence()
-ai_service = AIResponseService()
 
 # Initialize agent manager with OpenAI client
 if AGENTS_AVAILABLE and ai_service.client:
@@ -752,18 +1030,22 @@ async def root():
         }
     }
 
+from datetime import datetime
+
 @app.get("/health")
 async def health_check():
     # Clean up expired conversation contexts during health check
     if agent_manager:
         await agent_manager.cleanup_memory()
-    
-    return {
+
+    health_data = {
         "status": "healthy",
         "timestamp": datetime.now(),
         "services": {
             "api": "healthy",
             "storage": "healthy",
+            "admin_uploads": "healthy",
+            "web_scraping": "available" if SCRAPING_AVAILABLE else "disabled",
             "voice_processor": "healthy" if voice_processor.model else "mock",
             "knowledge_base": "healthy",
             "ai_service": "openai" if ai_service.client else "fallback",
@@ -777,6 +1059,217 @@ async def health_check():
             "context_timeout_hours": 2
         }
     }
+
+    return health_data
+
+@app.post("/admin/upload/json", response_model=UploadResponse)
+async def upload_json_file(
+    file: UploadFile = File(...),
+    admin_user: str = Depends(verify_admin_password)
+):
+    """Upload and process JSON file"""
+    if not file.filename.endswith('.json'):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only JSON files are allowed"
+        )
+    
+    if not file_processor.validate_file(file):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid file format or size too large"
+        )
+    
+    try:
+        result = await file_processor.process_json_file(file)
+        
+        # Trigger knowledge ingestion if agent is available
+        if agent_manager and agent_manager.orchestrator:
+            await trigger_knowledge_ingestion(result["file_path"], "json")
+        
+        return UploadResponse(
+            success=True,
+            message=f"JSON file uploaded successfully: {file.filename}",
+            file_path=result["file_path"],
+            processed_content=result
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to process JSON file: {str(e)}"
+        )
+
+@app.post("/admin/upload/audio", response_model=UploadResponse)
+async def upload_audio_file(
+    file: UploadFile = File(...),
+    admin_user: str = Depends(verify_admin_password)
+):
+    """Upload and process audio file"""
+    file_ext = Path(file.filename).suffix.lower()
+    if file_ext not in EnhancedConfig.ALLOWED_AUDIO_FORMATS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Audio format not supported. Allowed: {EnhancedConfig.ALLOWED_AUDIO_FORMATS}"
+        )
+    
+    if not file_processor.validate_file(file):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid file format or size too large"
+        )
+    
+    try:
+        result = await file_processor.process_audio_file(file)
+        
+        # Trigger knowledge ingestion if agent is available
+        if agent_manager and agent_manager.orchestrator:
+            await trigger_knowledge_ingestion(result["file_path"], "audio")
+        
+        return UploadResponse(
+            success=True,
+            message=f"Audio file uploaded successfully: {file.filename}",
+            file_path=result["file_path"],
+            processed_content=result
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to process audio file: {str(e)}"
+        )
+
+@app.post("/admin/upload/url", response_model=UploadResponse)
+async def upload_website_url(
+    request: URLUploadRequest,
+    admin_user: str = Depends(verify_admin_password)
+):
+    """Scrape and upload website content"""
+    try:
+        # Scrape website content
+        scraped_data = web_scraper.scrape_url(request.url)
+        scraped_data["category"] = request.category
+        
+        # Save scraped content
+        result = await file_processor.save_scraped_content(scraped_data)
+        
+        # Trigger knowledge ingestion if agent is available
+        if agent_manager and agent_manager.orchestrator:
+            await trigger_knowledge_ingestion(result["file_path"], "web")
+        
+        return UploadResponse(
+            success=True,
+            message=f"Website content scraped and uploaded successfully: {request.url}",
+            file_path=result["file_path"],
+            processed_content=result
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to scrape website: {str(e)}"
+        )
+
+@app.post("/admin/upload/faq", response_model=UploadResponse)
+async def upload_faq_file(
+    file: UploadFile = File(...),
+    admin_user: str = Depends(verify_admin_password)
+):
+    """Upload and process FAQ file (JSON or text format)"""
+    file_ext = Path(file.filename).suffix.lower()
+    
+    if file_ext == '.json':
+        result = await file_processor.process_json_file(file)
+    elif file_ext in ['.txt', '.md']:
+        result = await file_processor.process_text_file(file)
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="FAQ files must be in JSON, TXT, or MD format"
+        )
+    
+    try:
+        # Trigger knowledge ingestion if agent is available
+        if agent_manager and agent_manager.orchestrator:
+            await trigger_knowledge_ingestion(result["file_path"], "faq")
+        
+        return UploadResponse(
+            success=True,
+            message=f"FAQ file uploaded successfully: {file.filename}",
+            file_path=result["file_path"],
+            processed_content=result
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to process FAQ file: {str(e)}"
+        )
+
+@app.get("/admin/uploads/status")
+async def get_upload_status(admin_user: str = Depends(verify_admin_password)):
+    """Get status of uploaded files and knowledge ingestion"""
+    try:
+        sources_file = Path(storage.DATA_DIR) / "knowledge_ingestion" / "sources" / "index.json"
+        
+        if not sources_file.exists():
+            return {"sources": [], "total_count": 0}
+        
+        sources_data = json.loads(sources_file.read_text())
+        
+        # Get statistics
+        stats = {
+            "total_sources": len(sources_data.get("sources", [])),
+            "by_type": {},
+            "recent_uploads": []
+        }
+        
+        for source in sources_data.get("sources", []):
+            source_type = source.get("source_type", "unknown")
+            stats["by_type"][source_type] = stats["by_type"].get(source_type, 0) + 1
+            
+            # Get recent uploads (last 10)
+            if len(stats["recent_uploads"]) < 10:
+                stats["recent_uploads"].append({
+                    "filename": source.get("filename"),
+                    "type": source_type,
+                    "uploaded_at": source.get("uploaded_at")
+                })
+        
+        return stats
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get upload status: {str(e)}"
+        )
+
+# Knowledge ingestion trigger
+async def trigger_knowledge_ingestion(file_path: str, content_type: str):
+    """Trigger knowledge ingestion for uploaded content"""
+    if agent_manager and agent_manager.orchestrator:
+        try:
+            # Get knowledge ingestion agent
+            knowledge_agent = agent_manager.orchestrator.specialist_agents.get("knowledge_ingestion")
+            if knowledge_agent:
+                # Create ingestion request
+                from agents.base import AgentRequest
+                
+                request = AgentRequest(
+                    query=f"ingest new {content_type} source: {file_path}",
+                    session_id=f"admin_upload_{int(time.time())}",
+                    additional_context={
+                        "source_path": file_path,
+                        "source_type": content_type,
+                        "operation": "ingest_source"
+                    }
+                )
+                
+                # Process ingestion
+                await knowledge_agent.process_query(request)
+                logger.info(f"Knowledge ingestion triggered for {file_path}")
+                
+        except Exception as e:
+            logger.error(f"Failed to trigger knowledge ingestion: {e}")
+
+# Add this to your existing health check endpoint
+
 
 
 # @app.post("/query", response_model=QueryResponse)

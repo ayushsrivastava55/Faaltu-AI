@@ -9,6 +9,16 @@
       "processing_status": "completed",
       "extracted_insights": [],
       "metadata": {}
+    },
+    {
+      "filename": "scraped_1749299353_51d0508f.json",
+      "source_type": "web",
+      "uploaded_at": "2025-06-07T17:59:13.492570",
+      "metadata": {
+        "url": "https://www.lendenclub.com/privacy-policy/",
+        "title": "Privacy Policy - LenDenClub",
+        "content_length": 26268
+      }
     }
   ],
   "last_updated": "2025-06-05T16:49:52.228231"

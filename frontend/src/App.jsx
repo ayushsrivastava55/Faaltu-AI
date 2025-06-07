@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Mic, Send, User, MessageCircle, Database, Activity, Sparkles } from 'lucide-react'
+import { 
+  Mic, Send, User, MessageCircle, Database, Activity, Sparkles,
+  Upload, FileText, Music, Globe, Shield, CheckCircle, AlertCircle
+} from 'lucide-react'
 import axios from 'axios'
 import './App.css'
+import './AdminPanel.css'  // New CSS file for admin styles
 
 // API Base URL
 const API_BASE_URL = 'http://localhost:8080'
@@ -14,6 +18,11 @@ function App() {
   const [systemHealth, setSystemHealth] = useState(null)
   const [sessionId, setSessionId] = useState(null)
   const messagesEndRef = useRef(null)
+  const [showAdminPanel, setShowAdminPanel] = useState(false)
+  const [adminAuth, setAdminAuth] = useState({ username: '', password: '', isAuthenticated: false })
+  const [uploadStatus, setUploadStatus] = useState({ status: 'idle', message: '', type: 'info' })
+  const [uploadStats, setUploadStats] = useState(null)
+
 
   // Initialize session on mount
   useEffect(() => {
@@ -182,6 +191,123 @@ function App() {
     }
   }
 
+const handleAdminLogin = async (e) => {
+    e.preventDefault()
+    
+    try {
+      // Test authentication by fetching upload status
+      const response = await axios.get(`${API_BASE_URL}/admin/uploads/status`, {
+        auth: {
+          username: adminAuth.username,
+          password: adminAuth.password
+        }
+      })
+      
+      setAdminAuth(prev => ({ ...prev, isAuthenticated: true }))
+      setUploadStats(response.data)
+      setUploadStatus({ status: 'success', message: 'Admin authentication successful!', type: 'success' })
+      
+    } catch (error) {
+      setUploadStatus({ 
+        status: 'error', 
+        message: 'Invalid admin credentials', 
+        type: 'error' 
+      })
+    }
+  }
+
+  const handleAdminLogout = () => {
+    setAdminAuth({ username: '', password: '', isAuthenticated: false })
+    setUploadStats(null)
+    setUploadStatus({ status: 'idle', message: '', type: 'info' })
+  }
+
+  // File upload handlers
+  const handleFileUpload = async (file, uploadType) => {
+    setUploadStatus({ status: 'loading', message: 'Uploading file...', type: 'info' })
+    
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      
+      const endpoint = uploadType === 'audio' ? 'audio' : 
+                     uploadType === 'faq' ? 'faq' : 'json'
+      
+      const response = await axios.post(`${API_BASE_URL}/admin/upload/${endpoint}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        auth: {
+          username: adminAuth.username,
+          password: adminAuth.password
+        }
+      })
+      
+      setUploadStatus({ 
+        status: 'success', 
+        message: response.data.message, 
+        type: 'success' 
+      })
+      
+      // Refresh upload stats
+      await fetchUploadStats()
+      
+    } catch (error) {
+      setUploadStatus({ 
+        status: 'error', 
+        message: error.response?.data?.detail || 'Upload failed', 
+        type: 'error' 
+      })
+    }
+  }
+
+  const handleUrlUpload = async (url, category = 'general') => {
+    setUploadStatus({ status: 'loading', message: 'Scraping website...', type: 'info' })
+    
+    try {
+      const response = await axios.post(`${API_BASE_URL}/admin/upload/url`, {
+        url: url,
+        category: category
+      }, {
+        auth: {
+          username: adminAuth.username,
+          password: adminAuth.password
+        }
+      })
+      
+      setUploadStatus({ 
+        status: 'success', 
+        message: response.data.message, 
+        type: 'success' 
+      })
+      
+      // Refresh upload stats
+      await fetchUploadStats()
+      
+    } catch (error) {
+      setUploadStatus({ 
+        status: 'error', 
+        message: error.response?.data?.detail || 'URL upload failed', 
+        type: 'error' 
+      })
+    }
+  }
+
+  const fetchUploadStats = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/admin/uploads/status`, {
+        auth: {
+          username: adminAuth.username,
+          password: adminAuth.password
+        }
+      })
+      setUploadStats(response.data)
+    } catch (error) {
+      console.error('Failed to fetch upload stats:', error)
+    }
+  }
+
+
   return (
     <div className="app">
       <header className="app-header">
@@ -190,6 +316,13 @@ function App() {
           <h1>✨ Voice AI Assistant</h1>
         </div>
         <div className="header-right">
+          <button 
+            onClick={() => setShowAdminPanel(!showAdminPanel)}
+            className={`admin-toggle-button ${showAdminPanel ? 'active' : ''}`}
+          >
+            <Shield size={18} />
+            Admin Panel
+          </button>
           <button onClick={() => {
             localStorage.removeItem('conversation_session_id')
             setMessages([])
@@ -203,7 +336,39 @@ function App() {
         </div>
       </header>
 
-      <main className="chat-container">
+      <div className="main-content">
+        {/* Admin Panel */}
+        {showAdminPanel && (
+          <div className="admin-panel">
+            <div className="admin-panel-header">
+              <h2>Admin Data Upload Panel</h2>
+              {adminAuth.isAuthenticated && (
+                <button onClick={handleAdminLogout} className="logout-button">
+                  Logout
+                </button>
+              )}
+            </div>
+
+            {!adminAuth.isAuthenticated ? (
+              <AdminLoginForm 
+                adminAuth={adminAuth}
+                setAdminAuth={setAdminAuth}
+                onLogin={handleAdminLogin}
+                uploadStatus={uploadStatus}
+              />
+            ) : (
+              <AdminUploadPanel 
+                onFileUpload={handleFileUpload}
+                onUrlUpload={handleUrlUpload}
+                uploadStatus={uploadStatus}
+                uploadStats={uploadStats}
+              />
+            )}
+          </div>
+        )}
+
+        {/* Main Chat Interface */}
+        <main className={`chat-container ${showAdminPanel ? 'with-admin-panel' : ''}`}>
         <div className="messages">
           {messages.length === 0 && (
             <div className="message system">
@@ -301,7 +466,258 @@ function App() {
             <Send size={28} />
           </button>
         </form>
-      </main>
+        </main>
+      </div>
+    </div>
+  )
+}
+
+// Admin Login Form Component
+function AdminLoginForm({ adminAuth, setAdminAuth, onLogin, uploadStatus }) {
+  return (
+    <form onSubmit={onLogin} className="admin-login-form">
+      <div className="form-group">
+        <label>Username:</label>
+        <input
+          type="text"
+          value={adminAuth.username}
+          onChange={(e) => setAdminAuth(prev => ({ ...prev, username: e.target.value }))}
+          placeholder="admin"
+          required
+        />
+      </div>
+      <div className="form-group">
+        <label>Password:</label>
+        <input
+          type="password"
+          value={adminAuth.password}
+          onChange={(e) => setAdminAuth(prev => ({ ...prev, password: e.target.value }))}
+          placeholder="Enter admin password"
+          required
+        />
+      </div>
+      <button type="submit" className="login-button">
+        <Shield size={16} />
+        Authenticate
+      </button>
+      
+      <StatusMessage status={uploadStatus} />
+    </form>
+  )
+}
+
+// Admin Upload Panel Component
+function AdminUploadPanel({ onFileUpload, onUrlUpload, uploadStatus, uploadStats }) {
+  const [activeTab, setActiveTab] = useState('files')
+  const [urlInput, setUrlInput] = useState('')
+  const [categoryInput, setCategoryInput] = useState('general')
+
+  return (
+    <div className="admin-upload-panel">
+      <div className="upload-tabs">
+        <button 
+          className={`tab-button ${activeTab === 'files' ? 'active' : ''}`}
+          onClick={() => setActiveTab('files')}
+        >
+          <Upload size={16} />
+          File Upload
+        </button>
+        <button 
+          className={`tab-button ${activeTab === 'url' ? 'active' : ''}`}
+          onClick={() => setActiveTab('url')}
+        >
+          <Globe size={16} />
+          Website URL
+        </button>
+        <button 
+          className={`tab-button ${activeTab === 'stats' ? 'active' : ''}`}
+          onClick={() => setActiveTab('stats')}
+        >
+          <Database size={16} />
+          Statistics
+        </button>
+      </div>
+
+      <div className="tab-content">
+        {activeTab === 'files' && (
+          <FileUploadTab onFileUpload={onFileUpload} />
+        )}
+        
+        {activeTab === 'url' && (
+          <UrlUploadTab 
+            urlInput={urlInput}
+            setUrlInput={setUrlInput}
+            categoryInput={categoryInput}
+            setCategoryInput={setCategoryInput}
+            onUrlUpload={onUrlUpload}
+          />
+        )}
+        
+        {activeTab === 'stats' && (
+          <StatsTab uploadStats={uploadStats} />
+        )}
+      </div>
+
+      <StatusMessage status={uploadStatus} />
+    </div>
+  )
+}
+
+// File Upload Tab Component
+function FileUploadTab({ onFileUpload }) {
+  const handleFileChange = (e, type) => {
+    const file = e.target.files[0]
+    if (file) {
+      onFileUpload(file, type)
+    }
+  }
+
+  return (
+    <div className="file-upload-tab">
+      <div className="upload-section">
+        <h3><FileText size={20} /> JSON Files</h3>
+        <p>Upload JSON data files for knowledge base</p>
+        <input
+          type="file"
+          accept=".json"
+          onChange={(e) => handleFileChange(e, 'json')}
+          className="file-input"
+        />
+      </div>
+
+      <div className="upload-section">
+        <h3><FileText size={20} /> FAQ Files</h3>
+        <p>Upload FAQ content in JSON, TXT, or MD format</p>
+        <input
+          type="file"
+          accept=".json,.txt,.md"
+          onChange={(e) => handleFileChange(e, 'faq')}
+          className="file-input"
+        />
+      </div>
+
+      <div className="upload-section">
+        <h3><Music size={20} /> Audio Files</h3>
+        <p>Upload voice recordings for training</p>
+        <input
+          type="file"
+          accept=".mp3,.wav,.m4a,.ogg"
+          onChange={(e) => handleFileChange(e, 'audio')}
+          className="file-input"
+        />
+      </div>
+    </div>
+  )
+}
+
+// URL Upload Tab Component
+function UrlUploadTab({ urlInput, setUrlInput, categoryInput, setCategoryInput, onUrlUpload }) {
+  const handleUrlSubmit = (e) => {
+    e.preventDefault()
+    if (urlInput.trim()) {
+      onUrlUpload(urlInput.trim(), categoryInput)
+      setUrlInput('')
+    }
+  }
+
+  return (
+    <div className="url-upload-tab">
+      <form onSubmit={handleUrlSubmit} className="url-form">
+        <div className="form-group">
+          <label>Website URL:</label>
+          <input
+            type="url"
+            value={urlInput}
+            onChange={(e) => setUrlInput(e.target.value)}
+            placeholder="https://example.com"
+            required
+            className="url-input"
+          />
+        </div>
+        
+        <div className="form-group">
+          <label>Category:</label>
+          <select
+            value={categoryInput}
+            onChange={(e) => setCategoryInput(e.target.value)}
+            className="category-select"
+          >
+            <option value="general">General</option>
+            <option value="faq">FAQ</option>
+            <option value="documentation">Documentation</option>
+            <option value="news">News</option>
+            <option value="tutorial">Tutorial</option>
+          </select>
+        </div>
+
+        <button type="submit" className="url-submit-button">
+          <Globe size={16} />
+          Scrape & Upload
+        </button>
+      </form>
+    </div>
+  )
+}
+
+// Statistics Tab Component
+function StatsTab({ uploadStats }) {
+  if (!uploadStats) {
+    return <div className="stats-loading">Loading statistics...</div>
+  }
+
+  return (
+    <div className="stats-tab">
+      <div className="stats-overview">
+        <h3>Upload Statistics</h3>
+        <div className="stats-cards">
+          <div className="stat-card">
+            <h4>Total Sources</h4>
+            <p className="stat-number">{uploadStats.total_sources}</p>
+          </div>
+          
+          {Object.entries(uploadStats.by_type || {}).map(([type, count]) => (
+            <div key={type} className="stat-card">
+              <h4>{type.charAt(0).toUpperCase() + type.slice(1)}</h4>
+              <p className="stat-number">{count}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="recent-uploads">
+        <h3>Recent Uploads</h3>
+        <div className="uploads-list">
+          {uploadStats.recent_uploads?.map((upload, index) => (
+            <div key={index} className="upload-item">
+              <span className="upload-type">{upload.type}</span>
+              <span className="upload-filename">{upload.filename}</span>
+              <span className="upload-date">
+                {new Date(upload.uploaded_at).toLocaleDateString()}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Status Message Component
+function StatusMessage({ status }) {
+  if (status.status === 'idle') return null
+
+  const getIcon = () => {
+    switch (status.type) {
+      case 'success': return <CheckCircle size={16} />
+      case 'error': return <AlertCircle size={16} />
+      default: return <Activity size={16} />
+    }
+  }
+
+  return (
+    <div className={`status-message ${status.type}`}>
+      {getIcon()}
+      <span>{status.message}</span>
     </div>
   )
 }
