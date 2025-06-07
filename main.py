@@ -14,6 +14,7 @@ from datetime import datetime, timedelta
 import hashlib
 import hmac
 import asyncio
+from fastapi import Depends
 
 # Configure logging first, before any other code that might use it
 import logging
@@ -39,7 +40,7 @@ except ImportError:
 
 from fastapi import FastAPI, HTTPException, status, Depends, Request, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+# from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
@@ -144,39 +145,38 @@ class QueryResponse(BaseModel):
     tools_used: Optional[List[str]] = []
     reasoning_approach: Optional[str] = None
 
-class LoginRequest(BaseModel):
-    username: str
-    password: str
+# class LoginRequest(BaseModel):
+#     username: str
+#     password: str
 
-class AuthResponse(BaseModel):
-    access_token: str
-    user_info: Dict[str, Any]
-    expires_in: int
+# class AuthResponse(BaseModel):
+#     access_token: str
+#     user_info: Dict[str, Any]
+#     expires_in: int
 
 # Simple File-Based Storage
 class SimpleStorage:
     def __init__(self):
         self.DATA_DIR = Config.DATA_DIR  # Add DATA_DIR attribute for conversation memory
-        self.users_file = Config.DATA_DIR / "users" / "users.json"
         self.knowledge_file = Config.DATA_DIR / "knowledge" / "knowledge.json"
         self.sessions_file = Config.DATA_DIR / "sessions" / "sessions.json"
         
         # Initialize files if they don't exist
-        self._init_users()
         self._init_knowledge()
         self._init_sessions()
-    
-    def _init_users(self):
-        if not self.users_file.exists():
-            users = {
-                "demo": {
-                    "password_hash": self._hash_password("demo123"),
-                    "email": "demo@example.com",
-                    "full_name": "Demo User",
-                    "created_at": datetime.now().isoformat()
-                }
-            }
-            self._save_json(self.users_file, users)
+
+    #commented to remove the user password
+    # def _init_users(self):
+    #     if not self.users_file.exists():
+    #         users = {
+    #             "demo": {
+    #                 "password_hash": self._hash_password("demo123"),
+    #                 "email": "demo@example.com",
+    #                 "full_name": "Demo User",
+    #                 "created_at": datetime.now().isoformat()
+    #             }
+    #         }
+    #         self._save_json(self.users_file, users)
     
     def _init_knowledge(self):
         if not self.knowledge_file.exists():
@@ -203,51 +203,52 @@ class SimpleStorage:
         file_path.parent.mkdir(parents=True, exist_ok=True)
         file_path.write_text(json.dumps(data, indent=2, default=str))
     
-    def _hash_password(self, password: str) -> str:
-        return hmac.new(
-            Config.JWT_SECRET.encode(),
-            password.encode(),
-            hashlib.sha256
-        ).hexdigest()
+    #commented to remove the user password
+    # def _hash_password(self, password: str) -> str:
+    #     return hmac.new(
+    #         Config.JWT_SECRET.encode(),
+    #         password.encode(),
+    #         hashlib.sha256
+    #     ).hexdigest()
     
-    def authenticate_user(self, username: str, password: str) -> Optional[Dict[str, Any]]:
-        users = self._load_json(self.users_file)
-        user = users.get(username)
+    # def authenticate_user(self, username: str, password: str) -> Optional[Dict[str, Any]]:
+    #     users = self._load_json(self.users_file)
+    #     user = users.get(username)
         
-        if user and hmac.compare_digest(self._hash_password(password), user["password_hash"]):
-            return {
-                "username": username,
-                "email": user["email"],
-                "full_name": user["full_name"]
-            }
-        return None
+    #     if user and hmac.compare_digest(self._hash_password(password), user["password_hash"]):
+    #         return {
+    #             "username": username,
+    #             "email": user["email"],
+    #             "full_name": user["full_name"]
+    #         }
+    #     return None
     
-    def create_token(self, user_info: Dict[str, Any]) -> str:
-        payload = {
-            "user": user_info,
-            "exp": time.time() + 86400,  # 24 hours
-            "iat": time.time()
-        }
-        token = hmac.new(
-            Config.JWT_SECRET.encode(),
-            json.dumps(payload).encode(),
-            hashlib.sha256
-        ).hexdigest()
+    # def create_token(self, user_info: Dict[str, Any]) -> str:
+    #     payload = {
+    #         "user": user_info,
+    #         "exp": time.time() + 86400,  # 24 hours
+    #         "iat": time.time()
+    #     }
+    #     token = hmac.new(
+    #         Config.JWT_SECRET.encode(),
+    #         json.dumps(payload).encode(),
+    #         hashlib.sha256
+    #     ).hexdigest()
         
-        # Store session
-        sessions = self._load_json(self.sessions_file)
-        sessions[token] = payload
-        self._save_json(self.sessions_file, sessions)
+    #     # Store session
+    #     sessions = self._load_json(self.sessions_file)
+    #     sessions[token] = payload
+    #     self._save_json(self.sessions_file, sessions)
         
-        return token
+    #     return token
     
-    def verify_token(self, token: str) -> Optional[Dict[str, Any]]:
-        sessions = self._load_json(self.sessions_file)
-        session = sessions.get(token)
+    # def verify_token(self, token: str) -> Optional[Dict[str, Any]]:
+    #     sessions = self._load_json(self.sessions_file)
+    #     session = sessions.get(token)
         
-        if session and session["exp"] > time.time():
-            return session["user"]
-        return None
+    #     if session and session["exp"] > time.time():
+    #         return session["user"]
+    #     return None
     
     def search_knowledge(self, query: str) -> Dict[str, Any]:
         """Simple fallback knowledge search (replaced by agentic reasoning)"""
@@ -712,7 +713,7 @@ if AGENTS_AVAILABLE and ai_service.client:
 else:
     agent_manager = None
 
-security = HTTPBearer(auto_error=False)
+# security = HTTPBearer(auto_error=False)
 
 # FastAPI app
 app = FastAPI(
@@ -731,10 +732,8 @@ app.add_middleware(
 )
 
 # Authentication dependency
-async def get_current_user_optional(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    if not credentials:
-        return None
-    return storage.verify_token(credentials.credentials)
+async def get_current_user_optional():
+    return None
 
 # API Routes
 @app.get("/")
@@ -779,48 +778,51 @@ async def health_check():
         }
     }
 
-@app.post("/auth/login", response_model=AuthResponse)
-async def login(request: LoginRequest):
-    user = storage.authenticate_user(request.username, request.password)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid username or password"
-        )
-    
-    token = storage.create_token(user)
-    return AuthResponse(
-        access_token=token,
-        user_info=user,
-        expires_in=86400
-    )
 
-@app.post("/query", response_model=QueryResponse)
-async def query_ai(
-    request: QueryRequest,
-    use_agent: bool = True,
-    current_user: Optional[Dict[str, Any]] = Depends(get_current_user_optional)
-):
-    start_time = time.time()
-    # Improved session ID handling - use provided session_id or create a stable fallback
-    session_id = request.session_id
-    if not session_id:
-        # Create a more stable session ID for anonymous users
-        user_identifier = current_user.get('username', 'anonymous') if current_user else 'anonymous'
-        session_id = f"session_{user_identifier}_{int(start_time // 3600)}"  # Hour-based session for anonymous users
+# @app.post("/query", response_model=QueryResponse)
+# async def query_ai(
+#     request: QueryRequest,
+#     use_agent: bool = True,
+#     current_user: Optional[Dict[str, Any]] = Depends(get_current_user_optional)
+# ):
+#     start_time = time.time()
+#     # Improved session ID handling - use provided session_id or create a stable fallback
+#     session_id = request.session_id
+#     if not session_id:
+#         # Create a more stable session ID for anonymous users
+#         user_identifier = current_user.get('username', 'anonymous') if current_user else 'anonymous'
+#         session_id = f"session_{user_identifier}_{int(start_time // 3600)}"  # Hour-based session for anonymous users
     
-    # Try using agent system first (if enabled and available)
-    if use_agent and agent_manager and agent_manager.orchestrator:
-        try:
+#     # Try using agent system first (if enabled and available)
+#     if use_agent and agent_manager and agent_manager.orchestrator:
+#         try:
+#             agent_request = AgentRequest(
+#                 query=request.query,
+#                 session_id=session_id,
+#                 user_context=current_user or {},
+#                 voice_input=False
+#             )
+            
+#             agent_response = await agent_manager.process_query(agent_request)
+@app.post("/query", response_model=QueryResponse)
+async def query(request: QueryRequest):
+    """Process a text query"""
+    start_time = time.time()
+
+    # Generate session ID if not provided
+    session_id = request.session_id or f"session_{int(start_time)}"
+
+    try:
+        # Use agent manager if available
+        if agent_manager:
             agent_request = AgentRequest(
                 query=request.query,
                 session_id=session_id,
-                user_context=current_user or {},
-                voice_input=False
+                user_context={}  # Empty user_context instead of data from token
             )
-            
+
             agent_response = await agent_manager.process_query(agent_request)
-            
+
             # Convert agent response to standard QueryResponse format
             return QueryResponse(
                 query=agent_response.query,
@@ -834,34 +836,33 @@ async def query_ai(
                 tools_used=agent_response.tools_used,
                 reasoning_approach=agent_response.context_used.get("reasoning_approach")
             )
-            
-        except Exception as e:
-            logger.warning(f"Agent processing failed, falling back to legacy system: {e}")
-    
+
+    except Exception as e:
+        logger.warning(f"Agent processing failed, falling back to legacy system: {e}")
+
     # Fallback to original system (backward compatibility)
-    # Search knowledge base for context
     kb_result = storage.search_knowledge(request.query)
     context = kb_result.get("response", "") if kb_result.get("source") != "fallback" else ""
-    
+
     # Extract entities and find relationships
     entities = _extract_entities(request.query)
     relationships = {}
-    
+
     if entities:
         for entity in entities[:3]:  # Limit to top 3 entities
             entity_relationships = graph_intelligence.find_relationships(entity)
             if entity_relationships.get("relationships"):
                 relationships[entity] = entity_relationships
-    
+
     # Generate AI response with context and relationships
     ai_result = ai_service.generate_response(
         query=request.query,
         context=context,
         relationships=relationships
     )
-    
+
     processing_time = time.time() - start_time
-    
+
     return QueryResponse(
         query=request.query,
         response=ai_result["response"],
@@ -896,13 +897,8 @@ def _extract_entities(query: str) -> List[str]:
     return entities
 
 @app.post("/voice-query", response_model=QueryResponse)
-async def voice_query(
-    audio_file: UploadFile = File(...),
-    session_id: Optional[str] = None,
-    language: str = "en",
-    use_agent: bool = True,
-    current_user: Optional[Dict[str, Any]] = Depends(get_current_user_optional)
-):
+async def voice_query(audio_file: UploadFile = File(...), language: str = "en", session_id: Optional[str] = None):
+
     # Save uploaded file temporarily
     with tempfile.NamedTemporaryFile(delete=False, suffix=f".{audio_file.filename.split('.')[-1]}") as temp_file:
         content = await audio_file.read()
@@ -1023,19 +1019,9 @@ async def get_relationships(entity: str, depth: int = 1):
     }
 
 @app.post("/relationships")
-async def add_relationship(
-    from_entity: str,
-    to_entity: str, 
-    relationship_type: str,
-    current_user: Optional[Dict[str, Any]] = Depends(get_current_user_optional)
-):
-    """Add a new relationship (authenticated users only)"""
-    if not current_user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authentication required to add relationships"
-        )
-    
+async def add_relationship(from_entity: str, to_entity: str, relationship_type: str):
+    """Add a new relationship"""
+    # No authentication required
     graph_intelligence.add_relationship(from_entity, to_entity, relationship_type)
     return {
         "message": "Relationship added successfully",
@@ -1057,9 +1043,9 @@ async def agent_query(
             detail="Agent system not available"
         )
     
-    # Add user context from authentication
-    if current_user:
-        request.user_context.update(current_user)
+    # Since current_user is always None, remove user context update
+    # if current_user:
+    #     request.user_context.update(current_user)
     
     try:
         return await agent_manager.process_query(request)
@@ -1069,6 +1055,7 @@ async def agent_query(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Agent processing failed"
         )
+
 
 @app.get("/agents")
 async def list_agents():

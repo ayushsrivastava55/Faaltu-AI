@@ -1,0 +1,65 @@
+{
+  "session_id": "session_1749291006467_59tepxnfk",
+  "user_profile": {
+    "user_id": "session_1749291006467_59tepxnfk",
+    "session_id": "session_1749291006467_59tepxnfk",
+    "monthly_income": null,
+    "age": null,
+    "employment_type": null,
+    "credit_score": null,
+    "existing_loans": [],
+    "monthly_expenses": null,
+    "savings_amount": null,
+    "loan_purposes": [],
+    "preferred_tenure": null,
+    "max_emi_capacity": null,
+    "risk_tolerance": null,
+    "communication_style": null,
+    "frequently_asked_topics": [
+      "loan_application"
+    ],
+    "preferred_agents": [
+      "Application Assistant Agent"
+    ],
+    "interaction_patterns": {
+      "total_interactions": 1,
+      "hours": {
+        "15": 1
+      },
+      "days": {
+        "Saturday": 1
+      }
+    },
+    "created_at": "2025-06-07 15:40:33.773275",
+    "last_updated": "2025-06-07 15:40:38.800566",
+    "total_interactions": 1
+  },
+  "conversation_history": [
+    {
+      "timestamp": "2025-06-07 15:40:38.800535",
+      "user_query": "how to apply for loan",
+      "system_response": "I can help you with that! Applying for a loan can seem like a complex process, but I'm here to guide you through each step. Here's a brief overview of the loan application process:\n\n1. **Determine the Type of Loan You Need**: Understand the purpose of the loan to help you choose the right type (personal loan, home loan, car loan, etc.).\n  \n2. **Check Your Credit Score**: Lenders use your credit score to determine your creditworthiness. A higher credit score can lead to better loan terms.\n\n3. **Gather Required Documents**: Common documents include:\n   - Identification (ID, driver's license)\n   - Proof of income (pay stubs, tax returns)\n   - Employment details\n   - Bank statements\n   - Any additional documents specific to the type of loan\n\n4. **Research Lenders**: Compare interest rates, terms, and fees from multiple lenders to find the best option for you.\n\n5. **Submit Your Application**: You can usually apply online, in person, or over the phone, depending on the lender. Provide accurate information to avoid delays.\n\n6. **Wait for Approval**: The lender will review your application, credit history, and documents. This process can take a few days to a few weeks.\n\n7. **Review and Sign the Loan Agreement**: If approved, carefully review the terms of the loan agreement before signing.\n\nIf you need detailed guidance on any specific type of loan or assistance with document preparation, let me know!",
+      "agents_consulted": [
+        "Application Assistant Agent"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Application Assistant Agent processing",
+      "user_context": {
+        "session_id": "session_1749291006467_59tepxnfk",
+        "conversation_turns": 0,
+        "current_topic": null,
+        "last_agent_used": null
+      },
+      "confidence": 0.8,
+      "processing_time": 3.037211
+    }
+  ],
+  "current_topic": "loan_application",
+  "active_goals": [],
+  "context_summary": "User asked about: how to apply for loan...",
+  "last_agent_used": "Application Assistant Agent",
+  "pending_actions": [],
+  "started_at": "2025-06-07 15:40:33.774341",
+  "last_activity": "2025-06-07 15:40:38.800543",
+  "is_voice_session": false
+}

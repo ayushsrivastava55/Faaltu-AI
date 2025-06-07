@@ -156,3 +156,8 @@ Contributions, issues, and feature requests are welcome! See [CONTRIBUTING.md](C
 - [Faster Whisper](https://github.com/guillaumekln/faster-whisper) for efficient speech recognition
 - [Neo4j](https://neo4j.com/) for graph database capabilities
 - [FastAPI](https://fastapi.tiangolo.com/) for the high-performance web framework
+
+
+to start the project 
+chmod +x starter.sh
+./starter.sh
