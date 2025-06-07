@@ -3,7 +3,7 @@
   "user_profile": {
     "user_id": "session_1749298489092_mlt7r5oht",
     "session_id": "session_1749298489092_mlt7r5oht",
-    "monthly_income": null,
+    "monthly_income": 10000,
     "age": null,
     "employment_type": null,
     "credit_score": null,
@@ -16,23 +16,26 @@
     "risk_tolerance": null,
     "communication_style": null,
     "frequently_asked_topics": [
+      "loan_rates",
       "general_inquiry"
     ],
     "preferred_agents": [
-      "Document Processor Agent"
+      "Document Processor Agent",
+      "Loan Advisor Agent"
     ],
     "interaction_patterns": {
-      "total_interactions": 1,
+      "total_interactions": 2,
       "hours": {
-        "17": 1
+        "17": 1,
+        "18": 1
       },
       "days": {
-        "Saturday": 1
+        "Saturday": 2
       }
     },
     "created_at": "2025-06-07 17:53:55.576553",
-    "last_updated": "2025-06-07 17:59:56.816146",
-    "total_interactions": 1
+    "last_updated": "2025-06-07 18:14:02.007700",
+    "total_interactions": 2
   },
   "conversation_history": [
     {
@@ -52,14 +55,33 @@
       },
       "confidence": 0.8,
       "processing_time": 2.629307
+    },
+    {
+      "timestamp": "2025-06-07 18:14:02.007655",
+      "user_query": "I have income 10000 calculate loan for 5 years 10% interest rate emi ",
+      "system_response": "Based on your income of $10,000, you seem to have a healthy monthly cash flow. To calculate the optimal loan amount for a 5-year tenure at a 10% interest rate, let's consider a few factors to ensure the loan is affordable for you.\n\nAssuming a safe debt-to-income ratio of 30%, we would aim to keep your monthly loan EMI at around $3,000 ($10,000 * 30%). \n\nAt a 10% interest rate for a 5-year tenure, the EMI calculation would be approximately $212.47 per month per $10,000 borrowed.\n\nUsing these figures, here are a few scenarios to consider:\n\n1. **Loan Amount Calculation:**\n   - If your monthly EMI should not exceed $3,000, the maximum loan amount you could consider would be approximately $141,000 ($3,000 / $212.47 * $10,000).\n\n2. **EMI Affordability Check:**\n   - If you are looking to borrow a specific amount, we can then calculate the corresponding EMI to ensure it fits within your monthly budget.\n\nFeel free to share the exact loan amount you are considering, and I can provide a more tailored recommendation based on your preferences.",
+      "agents_consulted": [
+        "Loan Advisor Agent"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Loan Advisor Agent processing",
+      "user_context": {
+        "session_id": "session_1749298489092_mlt7r5oht",
+        "conversation_turns": 1,
+        "current_topic": "general_inquiry",
+        "last_agent_used": "Document Processor Agent",
+        "income": 10000
+      },
+      "confidence": 0.8,
+      "processing_time": 4.701926
     }
   ],
-  "current_topic": "general_inquiry",
+  "current_topic": "loan_rates",
   "active_goals": [],
-  "context_summary": "User asked about: can you help me in telling the privacy and policy...",
-  "last_agent_used": "Document Processor Agent",
+  "context_summary": "Discussion topics: loan_rates",
+  "last_agent_used": "Loan Advisor Agent",
   "pending_actions": [],
   "started_at": "2025-06-07 17:53:55.577070",
-  "last_activity": "2025-06-07 17:59:56.816143",
+  "last_activity": "2025-06-07 18:14:02.007672",
   "is_voice_session": false
 }

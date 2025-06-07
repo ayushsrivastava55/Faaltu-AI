@@ -19,6 +19,57 @@
         "title": "Privacy Policy - LenDenClub",
         "content_length": 26268
       }
+    },
+    {
+      "filename": "scraped_1749300127_51d0508f.json",
+      "source_type": "web",
+      "uploaded_at": "2025-06-07T18:12:07.198533",
+      "metadata": {
+        "url": "https://www.lendenclub.com/privacy-policy/",
+        "title": "Privacy Policy - LenDenClub",
+        "content_length": 26268
+      }
+    },
+    {
+      "filename": "scraped_1749300367_12eac19a.json",
+      "source_type": "web",
+      "uploaded_at": "2025-06-07T18:16:07.067699",
+      "metadata": {
+        "url": "https://www.lendenclub.com/terms-of-services/",
+        "title": "Terms of Services - LenDenClub",
+        "content_length": 57385
+      }
+    },
+    {
+      "filename": "uploaded_1749300586_Thank%20you%20for%20contac.wav",
+      "source_type": "audio",
+      "uploaded_at": "2025-06-07T18:19:46.547960",
+      "metadata": {
+        "original_filename": "Thank%20you%20for%20contac.wav",
+        "content_type": "audio/x-wav",
+        "size": 606044
+      }
+    },
+    {
+      "filename": "scraped_1749300892_cdb1324e.json",
+      "source_type": "web",
+      "uploaded_at": "2025-06-07T18:24:52.786944",
+      "metadata": {
+        "url": "https://support.lendenclub.com/support/solutions/articles/1060000116400-what-documents-are-required-to-become-a-lender-",
+        "title": "What documents are required to become a Lender? : LenDenClub Helpdesk",
+        "content_length": 1756
+      }
+    },
+    {
+      "filename": "uploaded_1749301003_lendenclub_clean_data.json",
+      "source_type": "json",
+      "uploaded_at": "2025-06-07T18:26:43.987946",
+      "metadata": {
+        "original_filename": "lendenclub_clean_data.json",
+        "content_type": "application/json",
+        "size": 17306,
+        "keys_count": 21
+      }
     }
   ],
   "last_updated": "2025-06-05T16:49:52.228231"
