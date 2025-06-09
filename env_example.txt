@@ -11,7 +11,7 @@ NEO4J_PASSWORD=password123
 
 # Conversation Memory Configuration
 # Set to true to use Neo4j graph storage via MCP instead of JSON files
-USE_NEO4J_MCP=false
+USE_NEO4J_MCP=true
 
 # Application Configuration
 PORT=8080
