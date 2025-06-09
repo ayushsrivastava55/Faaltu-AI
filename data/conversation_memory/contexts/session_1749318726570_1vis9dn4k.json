@@ -1,0 +1,88 @@
+{
+  "session_id": "session_1749318726570_1vis9dn4k",
+  "user_profile": {
+    "user_id": "session_1749318726570_1vis9dn4k",
+    "session_id": "session_1749318726570_1vis9dn4k",
+    "monthly_income": null,
+    "age": null,
+    "employment_type": null,
+    "credit_score": null,
+    "existing_loans": [],
+    "monthly_expenses": null,
+    "savings_amount": null,
+    "loan_purposes": [
+      "personal"
+    ],
+    "preferred_tenure": null,
+    "max_emi_capacity": null,
+    "risk_tolerance": null,
+    "communication_style": null,
+    "frequently_asked_topics": [
+      "loan_application",
+      "general_inquiry"
+    ],
+    "preferred_agents": [
+      "Loan Advisor Agent",
+      "Application Assistant Agent"
+    ],
+    "interaction_patterns": {
+      "total_interactions": 2,
+      "hours": {
+        "1": 2
+      },
+      "days": {
+        "Tuesday": 2
+      }
+    },
+    "created_at": "2025-06-10 01:02:42.836260",
+    "last_updated": "2025-06-10 01:02:52.611156",
+    "total_interactions": 2
+  },
+  "conversation_history": [
+    {
+      "timestamp": "2025-06-10 01:02:51.104094",
+      "user_query": "Initiate a welcome message and explain the services offered by the platform",
+      "system_response": "Welcome to LendenClub! I'm here to assist you with your financial needs and help you make informed decisions regarding loans and borrowing. \n\nAt LendenClub, we offer a range of services designed to cater to your specific requirements:\n\n1. **Financial Profiling and Risk Assessment**: We analyze your financial profile to understand your current situation and assess your risk profile accurately.\n\n2. **Loan Product Optimization**: We optimize loan amounts and tenure based on your financial profile and requirements to ensure the best fit for your needs.\n\n3. **Comparative Analysis**: We compare multiple loan options available in the market to help you choose the most suitable one based on interest rates, tenure, and other factors.\n\n4. **Affordability Modeling and EMI Planning**: We help you assess the affordability of different loan options by providing detailed EMI calculations and scenarios to plan your repayments effectively.\n\n5. **Market Rate Analysis and Timing Recommendations**: We analyze market trends to provide insights on the best time to avail of a loan and save on interest costs.\n\n6. **Credit Improvement Strategies**: We offer guidance on improving your credit score and managing your finances effectively to enhance your borrowing capabilities.\n\nFeel free to share your specific requirements or financial goals so we can provide you with personalized recommendations and actionable steps to achieve financial success.",
+      "agents_consulted": [
+        "Loan Advisor Agent"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Loan Advisor Agent processing",
+      "user_context": {
+        "session_id": "session_1749318726570_1vis9dn4k",
+        "conversation_turns": 0,
+        "current_topic": null,
+        "last_agent_used": null
+      },
+      "confidence": 0.8,
+      "processing_time": 5.641817
+    },
+    {
+      "timestamp": "2025-06-10 01:02:52.611086",
+      "user_query": "Introduce the loan advisor for personalized loan recommendations or the application assistant for step-by-step guidance based on user's needs",
+      "system_response": "Thank you for reaching out! I'm here to assist you in exploring personalized loan recommendations and providing step-by-step guidance throughout the application process. Whether you're looking for tailored loan options or need assistance with each stage of your application, I can help guide you effectively. \n\nFeel free to share more details about your specific requirements or financial goals so that we can provide you with the best recommendations and support to help you achieve financial success. Let's start by discussing how we can best assist you today!",
+      "agents_consulted": [
+        "Application Assistant Agent"
+      ],
+      "tools_used": [],
+      "reasoning_approach": "Application Assistant Agent processing",
+      "user_context": {
+        "session_id": "session_1749318726570_1vis9dn4k",
+        "conversation_turns": 1,
+        "current_topic": "general_inquiry",
+        "last_agent_used": "Loan Advisor Agent",
+        "loan_purpose": "personal"
+      },
+      "confidence": 0.8,
+      "processing_time": 1.503033
+    }
+  ],
+  "current_topic": "loan_application",
+  "active_goals": [],
+  "context_summary": "Discussion topics: loan_application",
+  "last_agent_used": "Application Assistant Agent",
+  "pending_actions": [],
+  "started_at": "2025-06-10 01:02:42.838388",
+  "last_activity": "2025-06-10 01:02:52.611130",
+  "is_voice_session": false
+}

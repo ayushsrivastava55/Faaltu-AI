@@ -156,17 +156,6 @@ class QueryResponse(BaseModel):
     tools_used: Optional[List[str]] = []
     reasoning_approach: Optional[str] = None
 
-# class LoginRequest(BaseModel):
-#     username: str
-#     password: str
-
-# class AuthResponse(BaseModel):
-#     access_token: str
-#     user_info: Dict[str, Any]
-#     expires_in: int
-
-
-
 # Simple File-Based Storage
 
 class EnhancedConfig(Config):
@@ -271,19 +260,6 @@ class SimpleStorage:
         self._init_knowledge()
         self._init_sessions()
 
-    #commented to remove the user password
-    # def _init_users(self):
-    #     if not self.users_file.exists():
-    #         users = {
-    #             "demo": {
-    #                 "password_hash": self._hash_password("demo123"),
-    #                 "email": "demo@example.com",
-    #                 "full_name": "Demo User",
-    #                 "created_at": datetime.now().isoformat()
-    #             }
-    #         }
-    #         self._save_json(self.users_file, users)
-    
     def _init_knowledge(self):
         if not self.knowledge_file.exists():
             knowledge = {
@@ -308,54 +284,7 @@ class SimpleStorage:
     def _save_json(self, file_path: Path, data: Dict):
         file_path.parent.mkdir(parents=True, exist_ok=True)
         file_path.write_text(json.dumps(data, indent=2, default=str))
-    
-    #commented to remove the user password
-    # def _hash_password(self, password: str) -> str:
-    #     return hmac.new(
-    #         Config.JWT_SECRET.encode(),
-    #         password.encode(),
-    #         hashlib.sha256
-    #     ).hexdigest()
-    
-    # def authenticate_user(self, username: str, password: str) -> Optional[Dict[str, Any]]:
-    #     users = self._load_json(self.users_file)
-    #     user = users.get(username)
-        
-    #     if user and hmac.compare_digest(self._hash_password(password), user["password_hash"]):
-    #         return {
-    #             "username": username,
-    #             "email": user["email"],
-    #             "full_name": user["full_name"]
-    #         }
-    #     return None
-    
-    # def create_token(self, user_info: Dict[str, Any]) -> str:
-    #     payload = {
-    #         "user": user_info,
-    #         "exp": time.time() + 86400,  # 24 hours
-    #         "iat": time.time()
-    #     }
-    #     token = hmac.new(
-    #         Config.JWT_SECRET.encode(),
-    #         json.dumps(payload).encode(),
-    #         hashlib.sha256
-    #     ).hexdigest()
-        
-    #     # Store session
-    #     sessions = self._load_json(self.sessions_file)
-    #     sessions[token] = payload
-    #     self._save_json(self.sessions_file, sessions)
-        
-    #     return token
-    
-    # def verify_token(self, token: str) -> Optional[Dict[str, Any]]:
-    #     sessions = self._load_json(self.sessions_file)
-    #     session = sessions.get(token)
-        
-    #     if session and session["exp"] > time.time():
-    #         return session["user"]
-    #     return None
-    
+
     def search_knowledge(self, query: str) -> Dict[str, Any]:
         """Simple fallback knowledge search (replaced by agentic reasoning)"""
         # This is now just a fallback - the main intelligence comes from agents
@@ -1267,36 +1196,8 @@ async def trigger_knowledge_ingestion(file_path: str, content_type: str):
                 
         except Exception as e:
             logger.error(f"Failed to trigger knowledge ingestion: {e}")
+   
 
-# Add this to your existing health check endpoint
-
-
-
-# @app.post("/query", response_model=QueryResponse)
-# async def query_ai(
-#     request: QueryRequest,
-#     use_agent: bool = True,
-#     current_user: Optional[Dict[str, Any]] = Depends(get_current_user_optional)
-# ):
-#     start_time = time.time()
-#     # Improved session ID handling - use provided session_id or create a stable fallback
-#     session_id = request.session_id
-#     if not session_id:
-#         # Create a more stable session ID for anonymous users
-#         user_identifier = current_user.get('username', 'anonymous') if current_user else 'anonymous'
-#         session_id = f"session_{user_identifier}_{int(start_time // 3600)}"  # Hour-based session for anonymous users
-    
-#     # Try using agent system first (if enabled and available)
-#     if use_agent and agent_manager and agent_manager.orchestrator:
-#         try:
-#             agent_request = AgentRequest(
-#                 query=request.query,
-#                 session_id=session_id,
-#                 user_context=current_user or {},
-#                 voice_input=False
-#             )
-            
-#             agent_response = await agent_manager.process_query(agent_request)
 @app.post("/query", response_model=QueryResponse)
 async def query(request: QueryRequest):
     """Process a text query"""

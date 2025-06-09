@@ -16,3 +16,4 @@ USE_NEO4J_MCP=true
 # Application Configuration
 PORT=8080
 JWT_SECRET=realistic-voice-ai-secret-change-in-production 
+ADMIN_PASSWORD=helloadmin

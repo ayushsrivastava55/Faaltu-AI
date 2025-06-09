@@ -1,0 +1,38 @@
+{
+  "user_id": "session_1749318726570_1vis9dn4k",
+  "session_id": "session_1749318726570_1vis9dn4k",
+  "monthly_income": null,
+  "age": null,
+  "employment_type": null,
+  "credit_score": null,
+  "existing_loans": [],
+  "monthly_expenses": null,
+  "savings_amount": null,
+  "loan_purposes": [
+    "personal"
+  ],
+  "preferred_tenure": null,
+  "max_emi_capacity": null,
+  "risk_tolerance": null,
+  "communication_style": null,
+  "frequently_asked_topics": [
+    "loan_application",
+    "general_inquiry"
+  ],
+  "preferred_agents": [
+    "Loan Advisor Agent",
+    "Application Assistant Agent"
+  ],
+  "interaction_patterns": {
+    "total_interactions": 2,
+    "hours": {
+      "1": 2
+    },
+    "days": {
+      "Tuesday": 2
+    }
+  },
+  "created_at": "2025-06-10 01:02:42.836260",
+  "last_updated": "2025-06-10 01:02:52.611156",
+  "total_interactions": 2
+}
