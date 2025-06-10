@@ -125,7 +125,8 @@ class CogneeKnowledgeIngestionAgent(BaseAgent):
         ]
         return tools
 
-    async def process_query(self, query: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def process_query(self, query, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+
         """
         Main entry point for processing queries.
         Handles different types of operations based on the query content.
@@ -140,11 +141,23 @@ class CogneeKnowledgeIngestionAgent(BaseAgent):
             }
         
         try:
+            # Handle AgentRequest object vs string
+            if hasattr(query, 'query'):
+                # It's an AgentRequest object
+                query_text = query.query
+                context = getattr(query, 'additional_context', context) or context
+                session_id = getattr(query, 'session_id', None)
+            else:
+                # It's a string
+                query_text = query
+            
             # Parse the query to determine operation type
-            operation = self._parse_operation(query, context)
+            operation = self._parse_operation(query_text, context)
             
             if operation["type"] == "ingest_file":
                 return await self._handle_file_ingestion(operation["data"])
+            elif operation["type"] == "ingest_source":  # Add this new operation type
+                return await self._handle_source_ingestion(operation["data"])
             elif operation["type"] == "ingest_text":
                 return await self._handle_text_ingestion(operation["data"])
             elif operation["type"] == "search":
@@ -168,27 +181,39 @@ class CogneeKnowledgeIngestionAgent(BaseAgent):
                 "agent": self.name
             }
     
-    def _parse_operation(self, query: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def _parse_operation(self, query_text: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """Parse the query to determine what operation to perform"""
         
-        # If context contains file information, it's a file ingestion
-        if context and "file_content" in context:
-            return {
-                "type": "ingest_file",
-                "data": {
-                    "content": context["file_content"],
-                    "filename": context.get("filename", "unknown"),
-                    "dataset_name": context.get("dataset_name", "default")
+        # Check context first for operation hints
+        if context:
+            if context.get("operation") == "ingest_source":
+                return {
+                    "type": "ingest_source",
+                    "data": {
+                        "source_path": context.get("source_path"),
+                        "source_type": context.get("source_type", "file"),
+                        "dataset_name": context.get("dataset_name", "default"),
+                        "url": context.get("url"),
+                        "title": context.get("title")
+                    }
                 }
-            }
+            elif "file_content" in context:
+                return {
+                    "type": "ingest_file",
+                    "data": {
+                        "content": context["file_content"],
+                        "filename": context.get("filename", "unknown"),
+                        "dataset_name": context.get("dataset_name", "default")
+                    }
+                }
         
         # Check for specific query patterns
-        query_lower = query.lower()
+        query_lower = query_text.lower()  # ✅ Now using query_text string
         
         if any(keyword in query_lower for keyword in ["search", "find", "query", "tell me about"]):
             return {
                 "type": "search",
-                "data": {"query": query}
+                "data": {"query": query_text}
             }
         elif "status" in query_lower or "health" in query_lower:
             return {
@@ -204,8 +229,9 @@ class CogneeKnowledgeIngestionAgent(BaseAgent):
             # Default to text ingestion
             return {
                 "type": "ingest_text",
-                "data": {"text": query}
+                "data": {"text": query_text}
             }
+    
     
     async def _handle_file_ingestion(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Handle file content ingestion into Cognee"""
@@ -335,6 +361,74 @@ class CogneeKnowledgeIngestionAgent(BaseAgent):
                 "error": str(e),
                 "agent": self.name
             }
+    async def _handle_source_ingestion(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle URL/source ingestion into Cognee knowledge graph"""
+        try:
+            source_path = data.get("source_path")
+            source_type = data.get("source_type", "file")
+            dataset_name = data.get("dataset_name", "default")
+            url = data.get("url")
+            title = data.get("title", "Unknown")
+
+            logger.info(f"Processing source ingestion: URL={url}, dataset={dataset_name}")
+
+            # Handle URL ingestion
+            if url:
+                # Add URL to Cognee for processing
+                await cognee.add(url, dataset_name=dataset_name)
+
+                # Process the content into knowledge graph
+                await cognee.cognify()
+
+                logger.info(f"Successfully processed URL {url} into knowledge graph")
+
+                return {
+                    "success": True,
+                    "message": f"URL '{url}' with title '{title}' successfully processed into knowledge graph",
+                    "dataset": dataset_name,
+                    "url": url,
+                    "title": title,
+                    "agent": self.name
+                }
+
+            # Handle file path ingestion
+            elif source_path:
+                # Add source path to Cognee
+                await cognee.add(source_path, dataset_name=dataset_name)
+
+                # Process the content into knowledge graph
+                await cognee.cognify()
+
+                logger.info(f"Successfully processed source {source_path} into knowledge graph")
+
+                return {
+                    "success": True,
+                    "message": f"Source '{source_path}' successfully processed into knowledge graph",
+                    "dataset": dataset_name,
+                    "agent": self.name
+                }
+
+            else:
+                return {
+                    "success": False,
+                    "error": "Missing URL or source path for ingestion",
+                    "agent": self.name
+                }
+
+        except Exception as e:
+            logger.error(f"Source ingestion failed: {e}")
+            return {
+                "success": False,
+                "error": f"Failed to process source: {str(e)}",
+                "agent": self.name
+            }
+
+    # ========== END OF NEW METHOD ==========
+
+    def is_available(self) -> bool:
+        """Check if the agent is available for processing"""
+        # ... rest of existing methods ...
+
     
     def is_available(self) -> bool:
         """Check if the agent is available for processing"""

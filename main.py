@@ -66,6 +66,95 @@ try:
 except ImportError:
     pass  # python-dotenv not available
 
+
+# adding this for handling the dictionary issues
+def safe_get_attr(obj, attr_name, default_value=None):
+    """Safely get attribute from object or dictionary"""
+    if obj is None:
+        return default_value
+
+    # If it's a dictionary
+    if isinstance(obj, dict):
+        return obj.get(attr_name, default_value)
+
+    # If it's an object with attributes
+    return getattr(obj, attr_name, default_value)
+
+def safe_get_confidence(obj, default_confidence=0.5):
+    """Safely extract confidence value from dict or object"""
+    return safe_get_attr(obj, 'confidence', default_confidence)
+
+def safe_get_response(obj, default_response="No response available"):
+    """Safely extract response text from dict or object"""
+    return safe_get_attr(obj, 'response', default_response)
+
+def safe_get_session_id(obj, default_session_id=None):
+    """Safely extract session_id from dict or object"""
+    return safe_get_attr(obj, 'session_id', default_session_id)
+
+def safe_get_processing_time(obj, default_time=0.0):
+    """Safely extract processing_time from dict or object"""
+    return safe_get_attr(obj, 'processing_time', default_time)
+
+def safe_get_timestamp(obj, default_timestamp=None):
+    """Safely extract timestamp from dict or object"""
+    return safe_get_attr(obj, 'timestamp', default_timestamp or datetime.now())
+
+def safe_get_tools_used(obj, default_tools=None):
+    """Safely extract tools_used from dict or object"""
+    return safe_get_attr(obj, 'tools_used', default_tools or [])
+
+def safe_get_context_used(obj, default_context=None):
+    """Safely extract context_used from dict or object"""
+    return safe_get_attr(obj, 'context_used', default_context or {})
+
+def safe_get_query(obj, default_query=""):
+    """Safely extract query from dict or object"""
+    return safe_get_attr(obj, 'query', default_query)
+
+def ensure_agent_response_format(response_data, query="", session_id=None):
+    """Convert dictionary response to object-like format if needed"""
+    if response_data is None:
+        return None
+
+    # If it's already the right format, return as-is
+    if hasattr(response_data, 'confidence') and hasattr(response_data, 'response'):
+        return response_data
+
+    # If it's a dictionary, create a simple object wrapper
+    if isinstance(response_data, dict):
+        class ResponseWrapper:
+            def __init__(self, data):
+                self.confidence = data.get('confidence', 0.5)
+                self.response = data.get('response', 'No response available')
+                self.session_id = data.get('session_id', session_id)
+                self.processing_time = data.get('processing_time', 0.0)
+                self.timestamp = data.get('timestamp', datetime.now())
+                self.tools_used = data.get('tools_used', [])
+                self.context_used = data.get('context_used', {})
+                self.query = data.get('query', query)
+
+        return ResponseWrapper(response_data)
+
+    return response_data
+
+def validate_cognee_response(response):
+    """Validate and log Cognee response format"""
+    if response is None:
+        logger.warning("Received None response from Cognee")
+        return False
+
+    if isinstance(response, dict):
+        logger.info(f"Received dict response from Cognee with keys: {list(response.keys())}")
+        return True
+
+    if hasattr(response, '__dict__'):
+        logger.info(f"Received object response from Cognee with attributes: {list(response.__dict__.keys())}")
+        return True
+
+    logger.warning(f"Received unexpected response type from Cognee: {type(response)}")
+    return False
+
 from fastapi import UploadFile, File
 # OpenAI integration
 try:
@@ -977,15 +1066,21 @@ class AgentManager:
 print(f"AGENTS_AVAILABLE: {AGENTS_AVAILABLE}")
 print(f"AI service client: {ai_service.client}")
 # Initialize agent manager with OpenAI client
-if AGENTS_AVAILABLE and ai_service.client:
-    agent_manager = AgentManager(
-        openai_client=ai_service.client,
-        storage_service=storage,
-        graph_intelligence=graph_intelligence
-    )
-else:
+agent_manager = None
+try:
+    if AGENTS_AVAILABLE and ai_service.client:
+        logger.info("Attempting to initialize agent manager...")
+        agent_manager = AgentManager(
+            openai_client=ai_service.client,
+            storage_service=storage,
+            graph_intelligence=graph_intelligence
+        )
+        logger.info("Agent manager initialized successfully")
+    else:
+        logger.warning("Agent manager not initialized - missing dependencies")
+except Exception as e:
+    logger.error(f"Failed to initialize agent manager: {e}")
     agent_manager = None
-    
 
 # security = HTTPBearer(auto_error=False)
 
@@ -1122,6 +1217,19 @@ async def cognee_search_knowledge(
     current_user: Optional[Dict[str, Any]] = Depends(get_current_user_optional)
 ):
     """Direct Cognee knowledge search endpoint"""
+    if not agent_manager:
+        return AgentResponse(
+            query=query,
+            response="Agent system not available",
+            agent_name="fallback",
+            confidence=0.1,
+            session_id=f"fallback_{int(time.time())}",
+            processing_time=0.1,
+            timestamp=datetime.now(),
+            tools_used=[],
+            context_used={},
+            follow_up_suggestions=[]
+    )
     if not agent_manager or not agent_manager.orchestrator:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -1361,20 +1469,33 @@ async def upload_url_to_cognee(
                     temp_file_path.unlink()
                 except:
                     pass
-                
+                #changed this
+                # return UploadResponse(
+                #     success=response.confidence > 0.5,
+                #     message=response.response,
+                #     file_path=str(temp_file_path),
+                #     processed_content={
+                #         "cognee_response": response.response,
+                #         "confidence": response.confidence,
+                #         "url": request.url,
+                #         "title": scraped_data['title'],
+                #         "dataset_name": dataset_name
+                #     }
+                # )
+                response = ensure_agent_response_format(response)
                 return UploadResponse(
-                    success=response.confidence > 0.5,
-                    message=response.response,
+                    success=safe_get_confidence(response) > 0.5,
+                    message=safe_get_response(response),
                     file_path=str(temp_file_path),
                     processed_content={
-                        "cognee_response": response.response,
-                        "confidence": response.confidence,
+                        "cognee_response": safe_get_response(response),
+                        "confidence": safe_get_confidence(response),
                         "url": request.url,
-                        "title": scraped_data['title'],
+                        "title": scraped_data.get('title', 'Unknown'),
                         "dataset_name": dataset_name
                     }
                 )
-                
+                                
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -1423,7 +1544,9 @@ async def query(request: QueryRequest):
             "knowledge", "information", "document", "learn", "understand"
         ]
         
-        is_knowledge_query = any(keyword in request.query.lower() for keyword in knowledge_keywords)
+        query_text = request.query if request.query is not None else ""
+        is_knowledge_query = any(keyword in query_text.lower() for keyword in knowledge_keywords)
+
         
         # Use Cognee for knowledge queries if available
         if is_knowledge_query and cognee_manager.initialized and agent_manager:
@@ -1465,18 +1588,33 @@ async def query(request: QueryRequest):
             )
 
             agent_response = await agent_manager.process_query(agent_request)
-
+            #changed!
+            # return QueryResponse(
+            #     query=agent_response.query,
+            #     response=agent_response.response,
+            #     session_id=agent_response.session_id,
+            #     confidence=agent_response.confidence,
+            #     processing_time=agent_response.processing_time,
+            #     timestamp=agent_response.timestamp,
+            #     relationships=agent_response.context_used.get("relationships", {}),
+            #     agents_consulted=agent_response.context_used.get("agents_consulted", []),
+            #     tools_used=agent_response.tools_used,
+            #     reasoning_approach=agent_response.context_used.get("reasoning_approach")
+            # )
+            # Safe access to agent_response attributes
+            agent_response = ensure_agent_response_format(agent_response)
+            context_used = safe_get_context_used(agent_response)
             return QueryResponse(
-                query=agent_response.query,
-                response=agent_response.response,
-                session_id=agent_response.session_id,
-                confidence=agent_response.confidence,
-                processing_time=agent_response.processing_time,
-                timestamp=agent_response.timestamp,
-                relationships=agent_response.context_used.get("relationships", {}),
-                agents_consulted=agent_response.context_used.get("agents_consulted", []),
-                tools_used=agent_response.tools_used,
-                reasoning_approach=agent_response.context_used.get("reasoning_approach")
+                query=safe_get_query(agent_response),
+                response=safe_get_response(agent_response),
+                session_id=safe_get_session_id(agent_response),
+                confidence=safe_get_confidence(agent_response),
+                processing_time=safe_get_processing_time(agent_response),
+                timestamp=safe_get_timestamp(agent_response),
+                relationships=context_used.get("relationships", {}),
+                agents_consulted=context_used.get("agents_consulted", []),
+                tools_used=safe_get_tools_used(agent_response),
+                reasoning_approach=context_used.get("reasoning_approach")
             )
 
     except Exception as e:
@@ -1505,12 +1643,24 @@ async def query(request: QueryRequest):
     )
 
     processing_time = time.time() - start_time
-
+    #changed this
+    # return QueryResponse(
+    #     query=request.query,
+    #     response=ai_result["response"],
+    #     session_id=session_id,
+    #     confidence=ai_result["confidence"],
+    #     processing_time=processing_time,
+    #     timestamp=datetime.now(),
+    #     relationships=relationships,
+    #     agents_consulted=[],
+    #     tools_used=[],
+    #     reasoning_approach=None
+    # )
     return QueryResponse(
         query=request.query,
-        response=ai_result["response"],
+        response=ai_result.get("response", "No response available"),
         session_id=session_id,
-        confidence=ai_result["confidence"],
+        confidence=ai_result.get("confidence", 0.5),
         processing_time=processing_time,
         timestamp=datetime.now(),
         relationships=relationships,
@@ -1549,17 +1699,32 @@ async def cognee_search(
                 )
                 
                 response = await cognee_agent.process_query(request)
+                #changed this
+                # return QueryResponse(
+                #     query=query,
+                #     response=response.response,
+                #     session_id=response.session_id,
+                #     confidence=response.confidence,
+                #     processing_time=response.processing_time,
+                #     timestamp=response.timestamp,
+                #     relationships={},
+                #     agents_consulted=["cognee_knowledge"],
+                #     tools_used=response.tools_used,
+                #     reasoning_approach="cognee_graph_search"
+                # )
+                # Safe access to response attributes
+                response = ensure_agent_response_format(response, query=query)
                 
                 return QueryResponse(
                     query=query,
-                    response=response.response,
-                    session_id=response.session_id,
-                    confidence=response.confidence,
-                    processing_time=response.processing_time,
-                    timestamp=response.timestamp,
+                    response=safe_get_response(response),
+                    session_id=safe_get_session_id(response),
+                    confidence=safe_get_confidence(response),
+                    processing_time=safe_get_processing_time(response),
+                    timestamp=safe_get_timestamp(response),
                     relationships={},
                     agents_consulted=["cognee_knowledge"],
-                    tools_used=response.tools_used,
+                    tools_used=safe_get_tools_used(response),
                     reasoning_approach="cognee_graph_search"
                 )
         
@@ -1688,19 +1853,35 @@ async def voice_query(audio_file: UploadFile = File(...), language: str = "en", 
                 agent_response = await agent_manager.process_query(agent_request)
                 
                 # Convert agent response to standard QueryResponse format
-                return QueryResponse(
-                    query=agent_response.query,
-                    response=agent_response.response,
-                    session_id=agent_response.session_id,
-                    confidence=min(transcription["confidence"], agent_response.confidence),
-                    processing_time=transcription["processing_time"] + agent_response.processing_time,
-                    timestamp=agent_response.timestamp,
-                    relationships=agent_response.context_used.get("relationships", {}),
-                    agents_consulted=agent_response.context_used.get("agents_consulted", []),
-                    tools_used=agent_response.tools_used,
-                    reasoning_approach=agent_response.context_used.get("reasoning_approach")
-                )
+                #changed this
+                # return QueryResponse(
+                #     query=agent_response.query,
+                #     response=agent_response.response,
+                #     session_id=agent_response.session_id,
+                #     confidence=min(transcription["confidence"], agent_response.confidence),
+                #     processing_time=transcription["processing_time"] + agent_response.processing_time,
+                #     timestamp=agent_response.timestamp,
+                #     relationships=agent_response.context_used.get("relationships", {}),
+                #     agents_consulted=agent_response.context_used.get("agents_consulted", []),
+                #     tools_used=agent_response.tools_used,
+                #     reasoning_approach=agent_response.context_used.get("reasoning_approach")
+                # )
+                agent_response = ensure_agent_response_format(agent_response)
+                context_used = safe_get_context_used(agent_response)
                 
+                return QueryResponse(
+                    query=safe_get_query(agent_response),
+                    response=safe_get_response(agent_response),
+                    session_id=safe_get_session_id(agent_response),
+                    confidence=min(transcription.get("confidence", 0.5), safe_get_confidence(agent_response)),
+                    processing_time=transcription.get("processing_time", 0) + safe_get_processing_time(agent_response),
+                    timestamp=safe_get_timestamp(agent_response),
+                    relationships=context_used.get("relationships", {}),
+                    agents_consulted=context_used.get("agents_consulted", []),
+                    tools_used=safe_get_tools_used(agent_response),
+                    reasoning_approach=context_used.get("reasoning_approach")
+                )
+                                
             except Exception as e:
                 logger.warning(f"Agent processing failed for voice query, falling back: {e}")
         
@@ -1727,12 +1908,24 @@ async def voice_query(audio_file: UploadFile = File(...), language: str = "en", 
         )
         
         processing_time = transcription["processing_time"] + ai_result.get("processing_time", 0)
-        
-        return QueryResponse(
-            query=transcription["text"],
-            response=ai_result["response"],
+        #changed this!
+        # return QueryResponse(
+        #     query=transcription["text"],
+        #     response=ai_result["response"],
+        #     session_id=session_id,
+        #     confidence=min(transcription["confidence"], ai_result["confidence"]),
+        #     processing_time=processing_time,
+        #     timestamp=datetime.now(),
+        #     relationships=relationships,
+        #     agents_consulted=[],
+        #     tools_used=[],
+        #     reasoning_approach=None
+        # )
+        return QueryResponse( 
+            query=transcription.get("text", ""),
+            response=ai_result.get("response", "No response available"),
             session_id=session_id,
-            confidence=min(transcription["confidence"], ai_result["confidence"]),
+            confidence=min(transcription.get("confidence", 0.5), ai_result.get("confidence", 0.5)),
             processing_time=processing_time,
             timestamp=datetime.now(),
             relationships=relationships,

@@ -171,5 +171,22 @@ docker run \
   --env NEO4J_AUTH=neo4j/cognee123 \
   neo4j:latest
   
+
+this is the command to run the docker for the neo4j-cognee-alt with the plugin
+docker run \
+  --name neo4j-cognee-alt \
+  -p7574:7474 -p7688:7687 \
+  -d \
+  -v $HOME/neo4j/data:/data \
+  -v $HOME/neo4j/logs:/logs \
+  -v $HOME/neo4j/import:/var/lib/neo4j/import \
+  -v $HOME/neo4j/plugins:/plugins \
+  -e NEO4J_AUTH=neo4j/cognee123 \
+  -e NEO4JLABS_PLUGINS='["apoc"]' \
+  -e NEO4J_dbms_security_procedures_unrestricted=apoc.* \
+  -e NEO4J_dbms_security_procedures_allowlist=apoc.* \
+  neo4j:latest
+
+
   url link for checking 
   localhost:7574
