@@ -5,7 +5,7 @@ import {
 } from 'lucide-react'
 import axios from 'axios'
 import './App.css'
-import './AdminPanel.css'  // New CSS file for admin styles
+import './AdminPanel.css'
 
 // API Base URL
 const API_BASE_URL = 'http://localhost:8080'
@@ -22,7 +22,6 @@ function App() {
   const [adminAuth, setAdminAuth] = useState({ username: '', password: '', isAuthenticated: false })
   const [uploadStatus, setUploadStatus] = useState({ status: 'idle', message: '', type: 'info' })
   const [uploadStats, setUploadStats] = useState(null)
-
 
   // Initialize session on mount
   useEffect(() => {
@@ -99,7 +98,7 @@ function App() {
     }
   }
 
-  // Voice recording handlers
+  // Voice recording handlers (unchanged)
   const startVoiceRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
@@ -191,7 +190,7 @@ function App() {
     }
   }
 
-const handleAdminLogin = async (e) => {
+  const handleAdminLogin = async (e) => {
     e.preventDefault()
     
     try {
@@ -222,18 +221,19 @@ const handleAdminLogin = async (e) => {
     setUploadStatus({ status: 'idle', message: '', type: 'info' })
   }
 
-  // File upload handlers
-  const handleFileUpload = async (file, uploadType) => {
-    setUploadStatus({ status: 'loading', message: 'Uploading file...', type: 'info' })
+  // UPDATED: File upload handler to use Cognee routes
+  const handleFileUpload = async (file, datasetName = 'uploaded_documents') => {
+    setUploadStatus({ status: 'loading', message: 'Uploading to Cognee knowledge system...', type: 'info' })
     
     try {
       const formData = new FormData()
       formData.append('file', file)
       
-      const endpoint = uploadType === 'audio' ? 'audio' : 
-                     uploadType === 'faq' ? 'faq' : 'json'
+      // Use URLSearchParams to add dataset_name as query parameter
+      const url = new URL(`${API_BASE_URL}/admin/upload/cognee`)
+      url.searchParams.append('dataset_name', datasetName)
       
-      const response = await axios.post(`${API_BASE_URL}/admin/upload/${endpoint}`, formData, {
+      const response = await axios.post(url.toString(), formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         },
@@ -255,17 +255,22 @@ const handleAdminLogin = async (e) => {
     } catch (error) {
       setUploadStatus({ 
         status: 'error', 
-        message: error.response?.data?.detail || 'Upload failed', 
+        message: error.response?.data?.detail || 'Upload to Cognee failed', 
         type: 'error' 
       })
     }
   }
 
-  const handleUrlUpload = async (url, category = 'general') => {
-    setUploadStatus({ status: 'loading', message: 'Scraping website...', type: 'info' })
+  // UPDATED: URL upload handler to use Cognee routes
+  const handleUrlUpload = async (url, category = 'general', datasetName = 'web_content') => {
+    setUploadStatus({ status: 'loading', message: 'Scraping website and uploading to Cognee...', type: 'info' })
     
     try {
-      const response = await axios.post(`${API_BASE_URL}/admin/upload/url`, {
+      // Use URLSearchParams to add dataset_name as query parameter
+      const apiUrl = new URL(`${API_BASE_URL}/admin/upload/url/cognee`)
+      apiUrl.searchParams.append('dataset_name', datasetName)
+      
+      const response = await axios.post(apiUrl.toString(), {
         url: url,
         category: category
       }, {
@@ -287,7 +292,7 @@ const handleAdminLogin = async (e) => {
     } catch (error) {
       setUploadStatus({ 
         status: 'error', 
-        message: error.response?.data?.detail || 'URL upload failed', 
+        message: error.response?.data?.detail || 'URL upload to Cognee failed', 
         type: 'error' 
       })
     }
@@ -306,7 +311,6 @@ const handleAdminLogin = async (e) => {
       console.error('Failed to fetch upload stats:', error)
     }
   }
-
 
   return (
     <div className="app">
@@ -341,7 +345,7 @@ const handleAdminLogin = async (e) => {
         {showAdminPanel && (
           <div className="admin-panel">
             <div className="admin-panel-header">
-              <h2>Admin Data Upload Panel</h2>
+              <h2>Admin Cognee Upload Panel</h2>
               {adminAuth.isAuthenticated && (
                 <button onClick={handleAdminLogout} className="logout-button">
                   Logout
@@ -367,7 +371,7 @@ const handleAdminLogin = async (e) => {
           </div>
         )}
 
-        {/* Main Chat Interface */}
+        {/* Main Chat Interface - unchanged */}
         <main className={`chat-container ${showAdminPanel ? 'with-admin-panel' : ''}`}>
         <div className="messages">
           {messages.length === 0 && (
@@ -472,7 +476,7 @@ const handleAdminLogin = async (e) => {
   )
 }
 
-// Admin Login Form Component
+// Admin Login Form Component (unchanged)
 function AdminLoginForm({ adminAuth, setAdminAuth, onLogin, uploadStatus }) {
   return (
     <form onSubmit={onLogin} className="admin-login-form">
@@ -506,11 +510,12 @@ function AdminLoginForm({ adminAuth, setAdminAuth, onLogin, uploadStatus }) {
   )
 }
 
-// Admin Upload Panel Component
+// UPDATED: Admin Upload Panel Component with dataset selection
 function AdminUploadPanel({ onFileUpload, onUrlUpload, uploadStatus, uploadStats }) {
   const [activeTab, setActiveTab] = useState('files')
   const [urlInput, setUrlInput] = useState('')
   const [categoryInput, setCategoryInput] = useState('general')
+  const [datasetInput, setDatasetInput] = useState('uploaded_documents') // NEW: dataset selection
 
   return (
     <div className="admin-upload-panel">
@@ -540,7 +545,11 @@ function AdminUploadPanel({ onFileUpload, onUrlUpload, uploadStatus, uploadStats
 
       <div className="tab-content">
         {activeTab === 'files' && (
-          <FileUploadTab onFileUpload={onFileUpload} />
+          <FileUploadTab 
+            onFileUpload={onFileUpload}
+            datasetInput={datasetInput}
+            setDatasetInput={setDatasetInput}
+          />
         )}
         
         {activeTab === 'url' && (
@@ -549,6 +558,8 @@ function AdminUploadPanel({ onFileUpload, onUrlUpload, uploadStatus, uploadStats
             setUrlInput={setUrlInput}
             categoryInput={categoryInput}
             setCategoryInput={setCategoryInput}
+            datasetInput={datasetInput}
+            setDatasetInput={setDatasetInput}
             onUrlUpload={onUrlUpload}
           />
         )}
@@ -563,46 +574,62 @@ function AdminUploadPanel({ onFileUpload, onUrlUpload, uploadStatus, uploadStats
   )
 }
 
-// File Upload Tab Component
-function FileUploadTab({ onFileUpload }) {
-  const handleFileChange = (e, type) => {
+// UPDATED: File Upload Tab Component with dataset selection
+function FileUploadTab({ onFileUpload, datasetInput, setDatasetInput }) {
+  const handleFileChange = (e) => {
     const file = e.target.files[0]
     if (file) {
-      onFileUpload(file, type)
+      onFileUpload(file, datasetInput)
     }
   }
 
   return (
     <div className="file-upload-tab">
-      <div className="upload-section">
-        <h3><FileText size={20} /> JSON Files</h3>
-        <p>Upload JSON data files for knowledge base</p>
-        <input
-          type="file"
-          accept=".json"
-          onChange={(e) => handleFileChange(e, 'json')}
-          className="file-input"
-        />
+      {/* NEW: Dataset Selection */}
+      <div className="dataset-section">
+        <h3>📊 Cognee Dataset</h3>
+        <div className="form-group">
+          <label>Dataset Name:</label>
+          <select
+            value={datasetInput}
+            onChange={(e) => setDatasetInput(e.target.value)}
+            className="dataset-select"
+          >
+            <option value="uploaded_documents">Uploaded Documents</option>
+            <option value="knowledge_base">Knowledge Base</option>
+            <option value="training_data">Training Data</option>
+            <option value="faq_content">FAQ Content</option>
+            <option value="custom">Custom Dataset</option>
+          </select>
+          {datasetInput === 'custom' && (
+            <input
+              type="text"
+              placeholder="Enter custom dataset name"
+              onChange={(e) => setDatasetInput(e.target.value)}
+              className="custom-dataset-input"
+            />
+          )}
+        </div>
       </div>
 
       <div className="upload-section">
-        <h3><FileText size={20} /> FAQ Files</h3>
-        <p>Upload FAQ content in JSON, TXT, or MD format</p>
+        <h3><FileText size={20} /> Document Files</h3>
+        <p>Upload any document to Cognee knowledge system (JSON, TXT, MD, PDF supported)</p>
         <input
           type="file"
-          accept=".json,.txt,.md"
-          onChange={(e) => handleFileChange(e, 'faq')}
+          accept=".json,.txt,.md,.pdf"
+          onChange={handleFileChange}
           className="file-input"
         />
       </div>
 
       <div className="upload-section">
         <h3><Music size={20} /> Audio Files</h3>
-        <p>Upload voice recordings for training</p>
+        <p>Upload voice recordings for Cognee processing</p>
         <input
           type="file"
           accept=".mp3,.wav,.m4a,.ogg"
-          onChange={(e) => handleFileChange(e, 'audio')}
+          onChange={handleFileChange}
           className="file-input"
         />
       </div>
@@ -610,12 +637,12 @@ function FileUploadTab({ onFileUpload }) {
   )
 }
 
-// URL Upload Tab Component
-function UrlUploadTab({ urlInput, setUrlInput, categoryInput, setCategoryInput, onUrlUpload }) {
+// UPDATED: URL Upload Tab Component with dataset selection
+function UrlUploadTab({ urlInput, setUrlInput, categoryInput, setCategoryInput, datasetInput, setDatasetInput, onUrlUpload }) {
   const handleUrlSubmit = (e) => {
     e.preventDefault()
     if (urlInput.trim()) {
-      onUrlUpload(urlInput.trim(), categoryInput)
+      onUrlUpload(urlInput.trim(), categoryInput, datasetInput)
       setUrlInput('')
     }
   }
@@ -623,6 +650,29 @@ function UrlUploadTab({ urlInput, setUrlInput, categoryInput, setCategoryInput, 
   return (
     <div className="url-upload-tab">
       <form onSubmit={handleUrlSubmit} className="url-form">
+        {/* NEW: Dataset Selection */}
+        <div className="form-group">
+          <label>Cognee Dataset:</label>
+          <select
+            value={datasetInput}
+            onChange={(e) => setDatasetInput(e.target.value)}
+            className="dataset-select"
+          >
+            <option value="web_content">Web Content</option>
+            <option value="scraped_docs">Scraped Documents</option>
+            <option value="knowledge_base">Knowledge Base</option>
+            <option value="custom">Custom Dataset</option>
+          </select>
+          {datasetInput === 'custom' && (
+            <input
+              type="text"
+              placeholder="Enter custom dataset name"
+              onChange={(e) => setDatasetInput(e.target.value)}
+              className="custom-dataset-input"
+            />
+          )}
+        </div>
+
         <div className="form-group">
           <label>Website URL:</label>
           <input
@@ -652,14 +702,14 @@ function UrlUploadTab({ urlInput, setUrlInput, categoryInput, setCategoryInput, 
 
         <button type="submit" className="url-submit-button">
           <Globe size={16} />
-          Scrape & Upload
+          Scrape & Upload to Cognee
         </button>
       </form>
     </div>
   )
 }
 
-// Statistics Tab Component
+// Statistics Tab Component (unchanged)
 function StatsTab({ uploadStats }) {
   if (!uploadStats) {
     return <div className="stats-loading">Loading statistics...</div>
@@ -702,7 +752,7 @@ function StatsTab({ uploadStats }) {
   )
 }
 
-// Status Message Component
+// Status Message Component (unchanged)
 function StatusMessage({ status }) {
   if (status.status === 'idle') return null
 

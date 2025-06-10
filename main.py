@@ -41,7 +41,7 @@ try:
         "GRAPH_DATABASE_PASSWORD": os.getenv("GRAPH_DATABASE_PASSWORD", "cognee123"),
         "LLM_API_KEY": os.getenv("LLM_API_KEY"),
         "LLM_PROVIDER": os.getenv("LLM_PROVIDER", "openai"),
-        "LLM_MODEL": os.getenv("LLM_MODEL", "gpt-4"),
+        "LLM_MODEL": os.getenv("LLM_MODEL", "gpt-3.5-turbo"), 
         "EMBEDDING_PROVIDER": os.getenv("EMBEDDING_PROVIDER", "openai"),
         "EMBEDDING_MODEL": os.getenv("EMBEDDING_MODEL", "text-embedding-3-large")
     }
