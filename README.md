@@ -183,10 +183,25 @@ docker run \
   -v $HOME/neo4j/plugins:/plugins \
   -e NEO4J_AUTH=neo4j/cognee123 \
   -e NEO4JLABS_PLUGINS='["apoc"]' \
-  -e NEO4J_dbms_security_procedures_unrestricted=apoc.* \
-  -e NEO4J_dbms_security_procedures_allowlist=apoc.* \
+  -e 'NEO4J_dbms_security_procedures_unrestricted=apoc.*' \
+  -e 'NEO4J_dbms_security_procedures_allowlist=apoc.*' \
   neo4j:latest
 
+if it keep stops again and again then run this command
+docker rm neo4j-cognee-alt
+docker run \
+    --name neo4j-cognee-new \
+    -p 7475:7474 -p 7688:7687 \
+    -d \
+    -v $HOME/neo4j-new/data:/data \
+    -v $HOME/neo4j-new/logs:/logs \
+    -v $HOME/neo4j-new/import:/var/lib/neo4j/import \
+    -v $HOME/neo4j-new/plugins:/plugins \
+    --env NEO4J_AUTH=neo4j/cognee123 \
+    --env NEO4J_PLUGINS='["apoc", "apoc-extended"]'\
+    --env 'NEO4J_dbms_security_procedures_unrestricted=apoc.*' \
+    --env 'NEO4J_dbms_security_procedures_allowlist=apoc.*' \
+    neo4j:latest
 
   url link for checking 
   localhost:7574

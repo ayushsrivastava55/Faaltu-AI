@@ -182,8 +182,8 @@ class CogneeKnowledgeIngestionAgent(BaseAgent):
             }
     
     def _parse_operation(self, query_text: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """Parse the query to determine what operation to perform"""
-        
+        # """Parse the query to determine what operation to perform"""
+
         # Check context first for operation hints
         if context:
             if context.get("operation") == "ingest_source":
