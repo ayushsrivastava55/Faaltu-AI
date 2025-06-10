@@ -158,6 +158,18 @@ Contributions, issues, and feature requests are welcome! See [CONTRIBUTING.md](C
 - [FastAPI](https://fastapi.tiangolo.com/) for the high-performance web framework
 
 
-to start the project 
-chmod +x starter.sh
-./starter.sh
+
+command to run docker for cognee
+docker run \
+  --name neo4j-cognee-alt \
+  -p7574:7474 -p7688:7687 \
+  -d \
+  -v $HOME/neo4j/data:/data \
+  -v $HOME/neo4j/logs:/logs \
+  -v $HOME/neo4j/import:/var/lib/neo4j/import \
+  -v $HOME/neo4j/plugins:/plugins \
+  --env NEO4J_AUTH=neo4j/cognee123 \
+  neo4j:latest
+  
+  url link for checking 
+  localhost:7574

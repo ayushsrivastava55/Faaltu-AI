@@ -14,6 +14,7 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 from pydantic_ai import Agent, RunContext
 
+# Use consistent relative imports within the agents package
 from .base import BaseAgent, AgentRequest, AgentResponse
 from .loan_advisor import LoanAdvisorAgent
 from .document_processor import DocumentProcessorAgent
@@ -22,6 +23,7 @@ from .application_assistant import ApplicationAssistantAgent
 from .compliance_checker import ComplianceCheckerAgent
 from .knowledge_ingestion import KnowledgeIngestionAgent
 from .rl_optimizer import RLOptimizerAgent
+from .cognee_knowledge_agent import CogneeKnowledgeIngestionAgent
 
 logger = logging.getLogger(__name__)
 
@@ -50,66 +52,75 @@ class AgentOrchestrator(BaseAgent):
     """
     
     def __init__(self, openai_client, storage_service, graph_intelligence=None, conversation_memory=None):
-        system_prompt = """You are the Chief AI Orchestrator for LendenClub's intelligent lending platform.
+        self.openai_client = openai_client
+        self.storage_service = storage_service
+        self.graph_intelligence = graph_intelligence
+        self.conversation_memory = conversation_memory
 
-Your core capabilities:
-1. **Analyze complex queries** and break them into actionable steps
-2. **Plan multi-step solutions** using available specialized agents
-3. **Coordinate agent workflows** to provide comprehensive answers
-4. **Adapt plans** based on intermediate results
-5. **Synthesize information** from multiple sources
-6. **Maintain conversation context** across multiple exchanges
+        try:
+            self.specialist_agents = {
+                "loan_advisor": LoanAdvisorAgent(openai_client, storage_service, graph_intelligence, conversation_memory),
+                "market_researcher": MarketResearcherAgent(openai_client, storage_service, graph_intelligence, conversation_memory),
+                "application_assistant": ApplicationAssistantAgent(openai_client, storage_service, graph_intelligence, conversation_memory),
+                "cognee_knowledge": CogneeKnowledgeIngestionAgent(openai_client, storage_service, graph_intelligence, conversation_memory),
+            }
 
-Available Specialized Agents:
-- LoanAdvisorAgent: Personalized loan recommendations and comparisons
-- DocumentProcessorAgent: Document analysis, verification, and requirements
-- MarketResearcherAgent: Real-time market rates and competitor analysis  
-- ApplicationAssistantAgent: Step-by-step application guidance
-- ComplianceCheckerAgent: Regulatory compliance and risk assessment
-- KnowledgeIngestionAgent: Continuous learning from real-world data sources
-- RLOptimizerAgent: Reinforcement learning-based optimization
+            for agent_name, agent in self.specialist_agents.items():
+                if hasattr(agent, 'is_available') and callable(agent.is_available):
+                    status = "✅ Available" if agent.is_available() else "❌ Not Available"
+                else:
+                    status = "✅ Initialized"
+                logger.info(f"Agent '{agent_name}': {status}")
 
-Your Decision-Making Process:
-1. **Understand user intent** considering conversation history and context
-2. **Analyze query complexity** (simple/medium/complex)
-3. **Leverage conversation memory** to provide contextual responses
-4. **Create step-by-step execution plan** based on user's journey
-5. **Delegate to appropriate specialist agents** with full context
-6. **Monitor progress and adapt** as needed
-7. **Synthesize results** into comprehensive, personalized responses
-
-Conversation Memory Integration:
-- Remember previous interactions and user preferences
-- Build on previous conversation topics
-- Provide contextual follow-ups and suggestions
-- Maintain user financial profile across sessions
-- Adapt responses based on user's communication style
-
-Key Principles:
-- Always provide actionable, personalized advice
-- Consider user's financial profile and goals
-- Build on previous conversation context
-- Ensure compliance with lending regulations
-- Offer multiple options when possible
-- Explain reasoning behind recommendations
-- Guide users through complex processes step-by-step
-- Learn and adapt to user preferences over time
-
-Remember: You're not just retrieving information - you're actively solving problems and guiding users through their lending journey with full awareness of their history and context."""
-
-        super().__init__(
-            name="Agent Orchestrator",
-            description="Main coordination agent that plans and executes multi-step solutions with conversation memory",
-            system_prompt=system_prompt,
-            openai_client=openai_client,
-            storage_service=storage_service,
-            graph_intelligence=graph_intelligence,
-            conversation_memory=conversation_memory
-        )
+        except Exception as e:
+            logger.error(f"Failed to initialize agents: {e}")
+            self.specialist_agents = {}
+            logger.warning("AgentOrchestrator failed to initialize any specialist agents.")
+        # Enhanced system prompt that includes Cognee capabilities
+        self.system_prompt = f"""
+        You are FinMate, an intelligent financial assistant orchestrator managing multiple specialized agents.
         
-        # Initialize specialized agents with conversation memory
-        self.specialist_agents = self._initialize_specialists()
-        self.active_contexts: Dict[str, AgentContext] = {}
+        Current date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+        
+        Available Specialist Agents:
+        - loan_advisor: Provides loan advice, calculations, and recommendations
+        - market_researcher: Handles market data, rates, and competitor analysis  
+        - application_assistant: Guides users through loan application processes
+        - cognee_knowledge: Manages knowledge ingestion and semantic search capabilities
+        
+        ROUTING GUIDELINES:
+        
+        1. KNOWLEDGE MANAGEMENT → cognee_knowledge:
+           - Document uploads and processing
+           - Knowledge base queries ("What documents mention...", "Find information about...")
+           - Semantic search requests
+           - Data ingestion tasks
+        
+        2. LOAN ADVICE → loan_advisor:
+           - Loan recommendations and calculations
+           - Interest rate questions
+           - Loan comparison requests
+           - Financial planning advice
+        
+        3. MARKET DATA → market_researcher:
+           - Current market rates and trends
+           - Competitor analysis
+           - Economic data and forecasts
+           - Market research requests
+        
+        4. APPLICATION GUIDANCE → application_assistant:
+           - Step-by-step application help
+           - Required documentation lists
+           - Application status inquiries
+           - Process explanations
+        
+        SPECIAL HANDLING FOR COGNEE:
+        - Route ALL document processing and knowledge queries to cognee_knowledge
+        - When users upload files or ask about stored information, use cognee_knowledge
+        - For semantic search across knowledge base, always use cognee_knowledge
+        
+        Always respond with the most appropriate agent based on the user's query intent.
+        """
     
     def _initialize_specialists(self) -> Dict[str, BaseAgent]:
         """Initialize all specialized agents with conversation memory"""
@@ -135,11 +146,16 @@ Remember: You're not just retrieving information - you're actively solving probl
                 ),
                 "rl_optimizer": RLOptimizerAgent(
                     self.openai_client, self.storage_service, self.graph_intelligence, self.conversation_memory
+                ),
+                # NEW: Add the Cognee Knowledge Ingestion Agent
+                "cognee_knowledge": CogneeKnowledgeIngestionAgent(
+                    self.openai_client, self.storage_service, self.graph_intelligence, self.conversation_memory
                 )
             }
         except Exception as e:
             logger.error(f"Failed to initialize some specialist agents: {e}")
             return {}
+
     
     def _register_tools(self):
         """Register orchestration tools"""
@@ -216,6 +232,63 @@ Remember: You're not just retrieving information - you're actively solving probl
         # Limit to top 3 suggestions
         return suggestions[:3]
 
+
+    def get_agent_status(self) -> Dict[str, Any]:
+        """
+        Get status of all agents for debugging
+        """
+        status = {}
+        for agent_name, agent in self.specialist_agents.items():
+            try:
+                if hasattr(agent, 'is_available'):
+                    available = agent.is_available()
+                    error_msg = getattr(agent, 'error_message', None) if not available else None
+                else:
+                    available = True
+                    error_msg = None
+                
+                status[agent_name] = {
+                    "available": available,
+                    "error": error_msg,
+                    "class": agent.__class__.__name__
+                }
+            except Exception as e:
+                status[agent_name] = {
+                    "available": False,
+                    "error": str(e),
+                    "class": agent.__class__.__name__ if agent else "None"
+                }
+        
+        return status
+    
+    async def test_cognee_agent(self) -> Dict[str, Any]:
+        """
+        Specific test method for Cognee agent
+        """
+        cognee_agent = self.specialist_agents.get("cognee_knowledge")
+        
+        if not cognee_agent:
+            return {
+                "success": False,
+                "error": "Cognee agent not found in orchestrator"
+            }
+        
+        # Test basic functionality
+        test_query = "status check"
+        try:
+            response = await cognee_agent.process_query(test_query)
+            return {
+                "success": True,
+                "test_response": response,
+                "agent_available": cognee_agent.is_available() if hasattr(cognee_agent, 'is_available') else True
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e)
+            }
+        
+
     async def process_query(self, request: AgentRequest) -> AgentResponse:
         """Main orchestration logic using LLM reasoning with conversation memory"""
         start_time = datetime.now()
@@ -275,11 +348,23 @@ Available Specialist Agents:
 - compliance_checker: Regulatory compliance and risk assessment
 - knowledge_ingestion: Continuous learning from real-world data sources
 - rl_optimizer: Reinforcement learning-based optimization
+- cognee_knowledge: Advanced knowledge graph creation, semantic search, and document processing
+
+ROUTING GUIDELINES:
+- For knowledge management, document processing, semantic search: use cognee_knowledge
+- For data ingestion, knowledge graphs, information retrieval: use cognee_knowledge
+- For learning from documents, building knowledge base: use cognee_knowledge
+- For loan recommendations and financial advice: use loan_advisor
+- For market analysis and rates: use market_researcher
+- For application help: use application_assistant
+- For document verification: use document_processor OR cognee_knowledge (if advanced processing needed)
+- For compliance: use compliance_checker
+- For optimization: use rl_optimizer
 
 Your task:
 1. Understand the user's intent considering conversation history
 2. Determine what information/analysis is required
-3. Decide which specialist agents should be involved
+3. Decide which specialist agents should be involved (prioritize cognee_knowledge for knowledge tasks)
 4. Create a logical sequence of steps that builds on previous context
 
 Respond with a JSON object containing:
@@ -292,6 +377,7 @@ Respond with a JSON object containing:
     "context_acknowledgment": "How you're building on previous conversation"
 }}
 """
+
 
             # Get LLM analysis and plan
             analysis_result = await self.agent.run(analysis_prompt, message_history=[])
@@ -547,6 +633,91 @@ Format as a simple list.
             logger.warning(f"Failed to generate follow-ups: {e}")
             return self._generate_follow_up_suggestions(original_query, synthesis)
 
+
+    async def route_query(self, user_query: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """
+        Route user query to the most appropriate agent
+        Enhanced to properly handle Cognee routing
+        """
+        
+        # Enhanced routing logic for Cognee integration
+        query_lower = user_query.lower()
+        
+        # Priority routing for knowledge management
+        knowledge_keywords = [
+            'upload', 'document', 'file', 'search knowledge', 'find in documents',
+            'what documents', 'knowledge base', 'semantic search', 'cognee',
+            'ingestion', 'knowledge graph', 'data processing'
+        ]
+        
+        # Check if this is a knowledge management query
+        if any(keyword in query_lower for keyword in knowledge_keywords):
+            return await self._route_to_agent("cognee_knowledge", user_query, context)
+        
+        # Check if context indicates file upload (from upload endpoints)
+        if context and ("file_content" in context or "filename" in context):
+            return await self._route_to_agent("cognee_knowledge", user_query, context)
+        
+        # Existing routing logic for other agents
+        if any(keyword in query_lower for keyword in ['loan', 'interest', 'rate', 'mortgage', 'finance']):
+            return await self._route_to_agent("loan_advisor", user_query, context)
+        elif any(keyword in query_lower for keyword in ['market', 'research', 'competitor', 'trend']):
+            return await self._route_to_agent("market_researcher", user_query, context)
+        elif any(keyword in query_lower for keyword in ['application', 'apply', 'document', 'requirement']):
+            return await self._route_to_agent("application_assistant", user_query, context)
+        else:
+            # Default to loan advisor for general financial queries
+            return await self._route_to_agent("loan_advisor", user_query, context)
+    
+    async def _route_to_agent(self, agent_name: str, query: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """
+        Route to specific agent with proper error handling
+        """
+        
+        # Check if agent exists
+        agent = self.specialist_agents.get(agent_name)
+        if not agent:
+            logger.error(f"Agent '{agent_name}' not found in specialist_agents")
+            return {
+                "success": False,
+                "error": f"Agent '{agent_name}' not available",
+                "available_agents": list(self.specialist_agents.keys())
+            }
+        
+        # Special check for Cognee agent availability
+        if agent_name == "cognee_knowledge":
+            if hasattr(agent, 'is_available') and not agent.is_available():
+                error_msg = getattr(agent, 'error_message', 'Unknown initialization error')
+                logger.error(f"Cognee agent not available: {error_msg}")
+                return {
+                    "success": False,
+                    "error": f"Cognee knowledge agent not available: {error_msg}",
+                    "agent": agent_name
+                }
+        
+        try:
+            # Call the agent's process_query method
+            response = await agent.process_query(query, context)
+            
+            # Add conversation to history
+            self.conversation_history.append({
+                "timestamp": datetime.now().isoformat(),
+                "user_query": query,
+                "agent_used": agent_name,
+                "response": response
+            })
+            
+            return response
+            
+        except Exception as e:
+            logger.error(f"Error processing query with agent '{agent_name}': {e}")
+            return {
+                "success": False,
+                "error": f"Agent processing failed: {str(e)}",
+                "agent": agent_name
+            }
+        
+
     async def initialize_agents(self):
         """Initialize all specialist agents"""
         try:
@@ -612,8 +783,10 @@ Format as a simple list.
         except Exception as e:
             logger.error(f"Failed to initialize agents: {e}")
             return False
+        
 
 
 def create_orchestrator(openai_client, storage_service, graph_intelligence=None, conversation_memory=None) -> AgentOrchestrator:
     """Factory function to create the orchestrator with all dependencies"""
     return AgentOrchestrator(openai_client, storage_service, graph_intelligence, conversation_memory) 
+print("[DEBUG] orchestrator.py loaded")

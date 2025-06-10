@@ -25,10 +25,29 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 import uvicorn
+import cognee
+from cognee.modules.search.types import SearchType
 # Configure logging first, before any other code that might use it
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+try:
+    # Cognee configuration - add to your existing config loading section
+    COGNEE_CONFIG = {
+        "GRAPH_DATABASE_PROVIDER": os.getenv("GRAPH_DATABASE_PROVIDER", "neo4j"),
+        "GRAPH_DATABASE_URL": os.getenv("GRAPH_DATABASE_URL", "bolt://localhost:7687"),
+        "GRAPH_DATABASE_USERNAME": os.getenv("GRAPH_DATABASE_USERNAME", "neo4j"),
+        "GRAPH_DATABASE_PASSWORD": os.getenv("GRAPH_DATABASE_PASSWORD", "cognee123"),
+        "LLM_API_KEY": os.getenv("LLM_API_KEY"),
+        "LLM_PROVIDER": os.getenv("LLM_PROVIDER", "openai"),
+        "LLM_MODEL": os.getenv("LLM_MODEL", "gpt-4"),
+        "EMBEDDING_PROVIDER": os.getenv("EMBEDDING_PROVIDER", "openai"),
+        "EMBEDDING_MODEL": os.getenv("EMBEDDING_MODEL", "text-embedding-3-large")
+    }
+except Exception as e:
+    logger.error(f"Failed to load Cognee configuration: {e}")
+    COGNEE_CONFIG = {}
 
 # Load environment variables from .env file
 try:
@@ -138,6 +157,50 @@ class Config:
     (DATA_DIR / "users").mkdir(exist_ok=True)
     (DATA_DIR / "sessions").mkdir(exist_ok=True)
     (DATA_DIR / "graph").mkdir(exist_ok=True)
+
+class CogneeManager:
+    """Manager for Cognee initialization and configuration"""
+    
+    def __init__(self):
+        self.initialized = False
+        self._initialize_cognee()
+    
+    def _initialize_cognee(self):
+        """Initialize Cognee with proper configuration"""
+        try:
+            # Configure Cognee
+            cognee.config.graph_database_provider = COGNEE_CONFIG.get("GRAPH_DATABASE_PROVIDER", "neo4j")
+            cognee.config.graph_database_url = COGNEE_CONFIG.get("GRAPH_DATABASE_URL")
+            cognee.config.graph_database_username = COGNEE_CONFIG.get("GRAPH_DATABASE_USERNAME")
+            cognee.config.graph_database_password = COGNEE_CONFIG.get("GRAPH_DATABASE_PASSWORD")
+            
+            cognee.config.llm_api_key = COGNEE_CONFIG.get("LLM_API_KEY")
+            cognee.config.llm_provider = COGNEE_CONFIG.get("LLM_PROVIDER")
+            cognee.config.llm_model = COGNEE_CONFIG.get("LLM_MODEL")
+            
+            cognee.config.embedding_provider = COGNEE_CONFIG.get("EMBEDDING_PROVIDER")
+            cognee.config.embedding_model = COGNEE_CONFIG.get("EMBEDDING_MODEL")
+            
+            self.initialized = True
+            logger.info("Cognee initialized successfully with Neo4j backend")
+            
+        except Exception as e:
+            logger.error(f"Failed to initialize Cognee: {e}")
+            self.initialized = False
+    
+    async def test_connection(self) -> bool:
+        """Test Cognee and Neo4j connection"""
+        try:
+            # Simple test to verify Cognee is working
+            await cognee.add("Test connection to Cognee", dataset_name="test")
+            logger.info("Cognee connection test successful")
+            return True
+        except Exception as e:
+            logger.error(f"Cognee connection test failed: {e}")
+            return False
+
+# Initialize Cognee manager
+cognee_manager = CogneeManager()
 
 # Data Models
 class QueryRequest(BaseModel):
@@ -895,9 +958,11 @@ class AgentManager:
                 "document_processor", 
                 "compliance_checker",
                 "knowledge_ingestion",
-                "rl_optimizer"
+                "rl_optimizer",
+                "cognee_knowledge"  # Add this line
             ]
         return ["fallback"]
+
     
     async def cleanup_memory(self):
         """Clean up expired conversation contexts"""
@@ -909,7 +974,8 @@ class AgentManager:
                 else:
                     self.conversation_memory.cleanup_expired_contexts()
 
-
+print(f"AGENTS_AVAILABLE: {AGENTS_AVAILABLE}")
+print(f"AI service client: {ai_service.client}")
 # Initialize agent manager with OpenAI client
 if AGENTS_AVAILABLE and ai_service.client:
     agent_manager = AgentManager(
@@ -919,6 +985,7 @@ if AGENTS_AVAILABLE and ai_service.client:
     )
 else:
     agent_manager = None
+    
 
 # security = HTTPBearer(auto_error=False)
 
@@ -967,6 +1034,12 @@ async def health_check():
     if agent_manager:
         await agent_manager.cleanup_memory()
 
+    # Test Cognee connection
+    cognee_status = "available" if cognee_manager.initialized else "unavailable"
+    if cognee_manager.initialized:
+        cognee_connection = await cognee_manager.test_connection()
+        cognee_status = "connected" if cognee_connection else "connection_failed"
+
     health_data = {
         "status": "healthy",
         "timestamp": datetime.now(),
@@ -980,155 +1053,108 @@ async def health_check():
             "ai_service": "openai" if ai_service.client else "fallback",
             "graph_intelligence": "neo4j" if graph_intelligence.driver else "simple",
             "agents": "available" if agent_manager and agent_manager.orchestrator else "fallback",
-            "conversation_memory": "active" if agent_manager and agent_manager.conversation_memory else "disabled"
+            "conversation_memory": "active" if agent_manager and agent_manager.conversation_memory else "disabled",
+            "cognee": cognee_status,  # Add Cognee status
+            "neo4j_integration": "active" if cognee_status == "connected" else "inactive"
         },
         "available_agents": agent_manager.get_available_agents() if agent_manager else [],
         "memory_status": {
             "active_contexts": len(agent_manager.conversation_memory.active_contexts) if agent_manager and agent_manager.conversation_memory else 0,
             "context_timeout_hours": 2
+        },
+        "cognee_config": {
+            "graph_provider": COGNEE_CONFIG.get("GRAPH_DATABASE_PROVIDER"),
+            "llm_provider": COGNEE_CONFIG.get("LLM_PROVIDER"),
+            "embedding_provider": COGNEE_CONFIG.get("EMBEDDING_PROVIDER")
         }
     }
 
     return health_data
 
-@app.post("/admin/upload/json", response_model=UploadResponse)
-async def upload_json_file(
-    file: UploadFile = File(...),
-    admin_user: str = Depends(verify_admin_password)
+@app.post("/cognee/ingest", response_model=AgentResponse)
+async def cognee_ingest_data(
+    file_path: str,
+    dataset_name: str = "default",
+    current_user: Optional[Dict[str, Any]] = Depends(get_current_user_optional)
 ):
-    """Upload and process JSON file"""
-    if not file.filename.endswith('.json'):
+    """Direct Cognee knowledge ingestion endpoint"""
+    if not agent_manager or not agent_manager.orchestrator:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Only JSON files are allowed"
-        )
-    
-    if not file_processor.validate_file(file):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid file format or size too large"
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Agent system not available"
         )
     
     try:
-        result = await file_processor.process_json_file(file)
-        
-        # Trigger knowledge ingestion if agent is available
-        if agent_manager and agent_manager.orchestrator:
-            await trigger_knowledge_ingestion(result["file_path"], "json")
-        
-        return UploadResponse(
-            success=True,
-            message=f"JSON file uploaded successfully: {file.filename}",
-            file_path=result["file_path"],
-            processed_content=result
+        # Create request for Cognee agent
+        request = AgentRequest(
+            query=f"ingest document from {file_path}",
+            session_id=f"cognee_ingest_{int(time.time())}",
+            additional_context={
+                "source_path": file_path,
+                "source_type": "document",
+                "dataset_name": dataset_name,
+                "operation": "ingest_source"
+            }
         )
+        
+        # Get Cognee agent directly
+        cognee_agent = agent_manager.orchestrator.specialist_agents.get("cognee_knowledge")
+        if not cognee_agent:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Cognee knowledge agent not available"
+            )
+        
+        # Process ingestion
+        response = await cognee_agent.process_query(request)
+        return response
+        
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to process JSON file: {str(e)}"
+            detail=f"Cognee ingestion failed: {str(e)}"
         )
 
-@app.post("/admin/upload/audio", response_model=UploadResponse)
-async def upload_audio_file(
-    file: UploadFile = File(...),
-    admin_user: str = Depends(verify_admin_password)
+@app.post("/cognee/search", response_model=AgentResponse)
+async def cognee_search_knowledge(
+    query: str,
+    search_type: str = "GRAPH_COMPLETION",
+    current_user: Optional[Dict[str, Any]] = Depends(get_current_user_optional)
 ):
-    """Upload and process audio file"""
-    file_ext = Path(file.filename).suffix.lower()
-    if file_ext not in EnhancedConfig.ALLOWED_AUDIO_FORMATS:
+    """Direct Cognee knowledge search endpoint"""
+    if not agent_manager or not agent_manager.orchestrator:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Audio format not supported. Allowed: {EnhancedConfig.ALLOWED_AUDIO_FORMATS}"
-        )
-    
-    if not file_processor.validate_file(file):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid file format or size too large"
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Agent system not available"
         )
     
     try:
-        result = await file_processor.process_audio_file(file)
-        
-        # Trigger knowledge ingestion if agent is available
-        if agent_manager and agent_manager.orchestrator:
-            await trigger_knowledge_ingestion(result["file_path"], "audio")
-        
-        return UploadResponse(
-            success=True,
-            message=f"Audio file uploaded successfully: {file.filename}",
-            file_path=result["file_path"],
-            processed_content=result
+        # Create request for Cognee agent
+        request = AgentRequest(
+            query=query,
+            session_id=f"cognee_search_{int(time.time())}",
+            additional_context={
+                "search_type": search_type,
+                "operation": "knowledge_search"
+            }
         )
+        
+        # Get Cognee agent directly
+        cognee_agent = agent_manager.orchestrator.specialist_agents.get("cognee_knowledge")
+        if not cognee_agent:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Cognee knowledge agent not available"
+            )
+        
+        # Process search
+        response = await cognee_agent.process_query(request)
+        return response
+        
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to process audio file: {str(e)}"
-        )
-
-@app.post("/admin/upload/url", response_model=UploadResponse)
-async def upload_website_url(
-    request: URLUploadRequest,
-    admin_user: str = Depends(verify_admin_password)
-):
-    """Scrape and upload website content"""
-    try:
-        # Scrape website content
-        scraped_data = web_scraper.scrape_url(request.url)
-        scraped_data["category"] = request.category
-        
-        # Save scraped content
-        result = await file_processor.save_scraped_content(scraped_data)
-        
-        # Trigger knowledge ingestion if agent is available
-        if agent_manager and agent_manager.orchestrator:
-            await trigger_knowledge_ingestion(result["file_path"], "web")
-        
-        return UploadResponse(
-            success=True,
-            message=f"Website content scraped and uploaded successfully: {request.url}",
-            file_path=result["file_path"],
-            processed_content=result
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to scrape website: {str(e)}"
-        )
-
-@app.post("/admin/upload/faq", response_model=UploadResponse)
-async def upload_faq_file(
-    file: UploadFile = File(...),
-    admin_user: str = Depends(verify_admin_password)
-):
-    """Upload and process FAQ file (JSON or text format)"""
-    file_ext = Path(file.filename).suffix.lower()
-    
-    if file_ext == '.json':
-        result = await file_processor.process_json_file(file)
-    elif file_ext in ['.txt', '.md']:
-        result = await file_processor.process_text_file(file)
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="FAQ files must be in JSON, TXT, or MD format"
-        )
-    
-    try:
-        # Trigger knowledge ingestion if agent is available
-        if agent_manager and agent_manager.orchestrator:
-            await trigger_knowledge_ingestion(result["file_path"], "faq")
-        
-        return UploadResponse(
-            success=True,
-            message=f"FAQ file uploaded successfully: {file.filename}",
-            file_path=result["file_path"],
-            processed_content=result
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to process FAQ file: {str(e)}"
+            detail=f"Cognee search failed: {str(e)}"
         )
 
 @app.get("/admin/uploads/status")
@@ -1168,6 +1194,192 @@ async def get_upload_status(admin_user: str = Depends(verify_admin_password)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to get upload status: {str(e)}"
         )
+    
+
+@app.get("/debug/agent-status")
+async def get_agent_status():
+    """Check status of all agents"""
+    try:
+        status = agent_manager.orchestrator.get_agent_status()
+        return {"agent_status": status}
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/debug/test-cognee")
+async def test_cognee_agent():
+    """Test Cognee agent specifically"""
+    try:
+        result = await agent_manager.orchestrator.test_cognee_agent()
+        return result
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.post("/admin/upload/cognee", response_model=UploadResponse)
+async def upload_to_cognee(
+    file: UploadFile = File(...),
+    dataset_name: str = "uploaded_documents",
+    admin_user: str = Depends(verify_admin_password)
+):
+    """Upload and process file using Cognee knowledge ingestion"""
+    if not cognee_manager.initialized:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Cognee not available - check configuration"
+        )
+    
+    if not file_processor.validate_file(file):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid file format or size too large"
+        )
+    
+    try:
+        # Save file temporarily
+        temp_dir = Path(storage.DATA_DIR) / "temp_uploads"
+        temp_dir.mkdir(exist_ok=True)
+        
+        timestamp = int(time.time())
+        safe_filename = f"upload_{timestamp}_{file.filename}"
+        temp_file_path = temp_dir / safe_filename
+        
+        # Save uploaded file
+        with open(temp_file_path, "wb") as buffer:
+            content = await file.read()
+            buffer.write(content)
+        
+        # Trigger Cognee ingestion via agent
+        if agent_manager and agent_manager.orchestrator:
+            cognee_agent = agent_manager.orchestrator.specialist_agents.get("cognee_knowledge")
+            if cognee_agent:
+                # Create ingestion request
+                request = AgentRequest(
+                    query=f"ingest document {file.filename}",
+                    session_id=f"admin_upload_{timestamp}",
+                    additional_context={
+                        "source_path": str(temp_file_path),
+                        "source_type": Path(file.filename).suffix.lower(),
+                        "dataset_name": dataset_name,
+                        "operation": "ingest_source",
+                        "original_filename": file.filename
+                    }
+                )
+                
+                # Process ingestion
+                response = await cognee_agent.process_query(request)
+                
+                # Clean up temp file
+                try:
+                    temp_file_path.unlink()
+                except:
+                    pass
+                
+                return UploadResponse(
+                    success=response.confidence > 0.5,
+                    message=response.response,
+                    file_path=str(temp_file_path),
+                    processed_content={
+                        "cognee_response": response.response,
+                        "confidence": response.confidence,
+                        "tools_used": response.tools_used,
+                        "dataset_name": dataset_name
+                    }
+                )
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail="Cognee knowledge agent not available"
+                )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Agent system not available"
+            )
+            
+    except Exception as e:
+        # Clean up temp file on error
+        try:
+            if 'temp_file_path' in locals():
+                temp_file_path.unlink()
+        except:
+            pass
+        
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to process file with Cognee: {str(e)}"
+        )
+
+@app.post("/admin/upload/url/cognee", response_model=UploadResponse)
+async def upload_url_to_cognee(
+    request: URLUploadRequest,
+    dataset_name: str = "web_content",
+    admin_user: str = Depends(verify_admin_password)
+):
+    """Scrape URL and process with Cognee"""
+    if not cognee_manager.initialized:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Cognee not available - check configuration"
+        )
+    
+    try:
+        # Scrape website content
+        scraped_data = web_scraper.scrape_url(request.url)
+        
+        # Save scraped content to temp file
+        temp_dir = Path(storage.DATA_DIR) / "temp_uploads"
+        temp_dir.mkdir(exist_ok=True)
+        
+        timestamp = int(time.time())
+        temp_file_path = temp_dir / f"scraped_{timestamp}.txt"
+        
+        with open(temp_file_path, 'w', encoding='utf-8') as f:
+            f.write(f"Title: {scraped_data['title']}\n")
+            f.write(f"URL: {scraped_data['url']}\n")
+            f.write(f"Content:\n{scraped_data['content']}")
+        
+        # Trigger Cognee ingestion via agent
+        if agent_manager and agent_manager.orchestrator:
+            cognee_agent = agent_manager.orchestrator.specialist_agents.get("cognee_knowledge")
+            if cognee_agent:
+                agent_request = AgentRequest(
+                    query=f"ingest web content from {request.url}",
+                    session_id=f"web_upload_{timestamp}",
+                    additional_context={
+                        "source_path": str(temp_file_path),
+                        "source_type": "web",
+                        "dataset_name": dataset_name,
+                        "operation": "ingest_source",
+                        "url": request.url,
+                        "title": scraped_data['title']
+                    }
+                )
+                
+                response = await cognee_agent.process_query(agent_request)
+                
+                # Clean up temp file
+                try:
+                    temp_file_path.unlink()
+                except:
+                    pass
+                
+                return UploadResponse(
+                    success=response.confidence > 0.5,
+                    message=response.response,
+                    file_path=str(temp_file_path),
+                    processed_content={
+                        "cognee_response": response.response,
+                        "confidence": response.confidence,
+                        "url": request.url,
+                        "title": scraped_data['title'],
+                        "dataset_name": dataset_name
+                    }
+                )
+                
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to process URL with Cognee: {str(e)}"
+        )
 
 # Knowledge ingestion trigger
 async def trigger_knowledge_ingestion(file_path: str, content_type: str):
@@ -1200,24 +1412,60 @@ async def trigger_knowledge_ingestion(file_path: str, content_type: str):
 
 @app.post("/query", response_model=QueryResponse)
 async def query(request: QueryRequest):
-    """Process a text query"""
+    """Process a text query - enhanced with Cognee routing"""
     start_time = time.time()
-
-    # Generate session ID if not provided
     session_id = request.session_id or f"session_{int(start_time)}"
 
     try:
-        # Use agent manager if available
+        # Check if this is a knowledge-related query that should use Cognee
+        knowledge_keywords = [
+            "search", "find", "what is", "tell me about", "explain", 
+            "knowledge", "information", "document", "learn", "understand"
+        ]
+        
+        is_knowledge_query = any(keyword in request.query.lower() for keyword in knowledge_keywords)
+        
+        # Use Cognee for knowledge queries if available
+        if is_knowledge_query and cognee_manager.initialized and agent_manager:
+            cognee_agent = agent_manager.orchestrator.specialist_agents.get("cognee_knowledge")
+            if cognee_agent:
+                try:
+                    agent_request = AgentRequest(
+                        query=request.query,
+                        session_id=session_id,
+                        additional_context={
+                            "operation": "knowledge_search",
+                            "search_type": "GRAPH_COMPLETION"
+                        }
+                    )
+                    
+                    agent_response = await cognee_agent.process_query(agent_request)
+                    
+                    return QueryResponse(
+                        query=agent_response.query,
+                        response=agent_response.response,
+                        session_id=agent_response.session_id,
+                        confidence=agent_response.confidence,
+                        processing_time=agent_response.processing_time,
+                        timestamp=agent_response.timestamp,
+                        relationships={},
+                        agents_consulted=["cognee_knowledge"],
+                        tools_used=agent_response.tools_used,
+                        reasoning_approach="cognee_semantic_search"
+                    )
+                except Exception as e:
+                    logger.warning(f"Cognee query failed, falling back: {e}")
+        
+        # Use agent manager if available (existing logic)
         if agent_manager:
             agent_request = AgentRequest(
                 query=request.query,
                 session_id=session_id,
-                user_context={}  # Empty user_context instead of data from token
+                user_context={}
             )
 
             agent_response = await agent_manager.process_query(agent_request)
 
-            # Convert agent response to standard QueryResponse format
             return QueryResponse(
                 query=agent_response.query,
                 response=agent_response.response,
@@ -1233,6 +1481,7 @@ async def query(request: QueryRequest):
 
     except Exception as e:
         logger.warning(f"Agent processing failed, falling back to legacy system: {e}")
+
 
     # Fallback to original system (backward compatibility)
     kb_result = storage.search_knowledge(request.query)
@@ -1269,6 +1518,125 @@ async def query(request: QueryRequest):
         tools_used=[],
         reasoning_approach=None
     )
+
+@app.post("/cognee/search", response_model=QueryResponse)
+async def cognee_search(
+    query: str,
+    search_type: str = "GRAPH_COMPLETION",
+    dataset_name: Optional[str] = None
+):
+    """Search knowledge graph using Cognee"""
+    if not cognee_manager.initialized:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Cognee not available"
+        )
+    
+    try:
+        start_time = time.time()
+        
+        if agent_manager and agent_manager.orchestrator:
+            cognee_agent = agent_manager.orchestrator.specialist_agents.get("cognee_knowledge")
+            if cognee_agent:
+                request = AgentRequest(
+                    query=query,
+                    session_id=f"cognee_search_{int(start_time)}",
+                    additional_context={
+                        "search_type": search_type,
+                        "dataset_name": dataset_name,
+                        "operation": "knowledge_search"
+                    }
+                )
+                
+                response = await cognee_agent.process_query(request)
+                
+                return QueryResponse(
+                    query=query,
+                    response=response.response,
+                    session_id=response.session_id,
+                    confidence=response.confidence,
+                    processing_time=response.processing_time,
+                    timestamp=response.timestamp,
+                    relationships={},
+                    agents_consulted=["cognee_knowledge"],
+                    tools_used=response.tools_used,
+                    reasoning_approach="cognee_graph_search"
+                )
+        
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Cognee agent not available"
+        )
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Cognee search failed: {str(e)}"
+        )
+
+@app.get("/cognee/status")
+async def cognee_status():
+    """Get Cognee system status"""
+    try:
+        if not cognee_manager.initialized:
+            return {
+                "status": "not_initialized",
+                "message": "Cognee is not properly configured"
+            }
+        
+        connection_test = await cognee_manager.test_connection()
+        
+        return {
+            "status": "healthy" if connection_test else "connection_error",
+            "initialized": cognee_manager.initialized,
+            "neo4j_connected": connection_test,
+            "config": {
+                "graph_provider": COGNEE_CONFIG.get("GRAPH_DATABASE_PROVIDER"),
+                "llm_provider": COGNEE_CONFIG.get("LLM_PROVIDER"),
+                "embedding_provider": COGNEE_CONFIG.get("EMBEDDING_PROVIDER")
+            }
+        }
+        
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e)
+        }
+
+@app.post("/cognee/clear")
+async def cognee_clear_knowledge(
+    confirm: bool = False,
+    admin_user: str = Depends(verify_admin_password)
+):
+    """Clear Cognee knowledge base"""
+    if not confirm:
+        return {
+            "message": "Are you sure? Set confirm=true to proceed. This will delete all knowledge graph data."
+        }
+    
+    try:
+        if agent_manager and agent_manager.orchestrator:
+            cognee_agent = agent_manager.orchestrator.specialist_agents.get("cognee_knowledge")
+            if cognee_agent:
+                request = AgentRequest(
+                    query="clear the knowledge base, I confirm",
+                    session_id=f"admin_clear_{int(time.time())}",
+                    additional_context={"operation": "clear_confirmed"}
+                )
+                
+                response = await cognee_agent.process_query(request)
+                return {"message": response.response, "success": response.confidence > 0.5}
+        
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Cognee agent not available"
+        )
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to clear knowledge base: {str(e)}"
+        )
 
 def _extract_entities(query: str) -> List[str]:
     """Simple entity extraction from query"""
