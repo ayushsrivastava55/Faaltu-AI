@@ -56,18 +56,23 @@ class BaseAgent(ABC):
         self.storage_service = storage_service
         self.graph_intelligence = graph_intelligence
         self.conversation_memory = conversation_memory
+        self.agent = None
         
-        # Initialize PydanticAI agent
+        # Initialize PydanticAI agent with error handling
+        self._initialize_agent()
+    
+    def _initialize_agent(self):
+        """Initialize the PydanticAI agent with proper error handling"""
         try:
             self.agent = Agent(
                 model='openai:gpt-3.5-turbo',
-                system_prompt=system_prompt,
+                system_prompt=self.system_prompt,
                 deps_type=type(None)  # No dependencies for now
             )
             self._register_tools()
-            logger.info(f"Initialized {name} successfully")
+            logger.info(f"Successfully initialized {self.name}")
         except Exception as e:
-            logger.error(f"Failed to initialize {name}: {e}")
+            logger.error(f"Failed to initialize {self.name}: {e}")
             self.agent = None
     
     @abstractmethod
@@ -94,13 +99,16 @@ class BaseAgent(ABC):
         
         # Add conversation memory context if available
         if self.conversation_memory and request.session_id:
-            if hasattr(self.conversation_memory, 'get_contextual_prompt_addition'):
-                if asyncio.iscoroutinefunction(self.conversation_memory.get_contextual_prompt_addition):
-                    contextual_addition = await self.conversation_memory.get_contextual_prompt_addition(request.session_id)
-                else:
-                    contextual_addition = self.conversation_memory.get_contextual_prompt_addition(request.session_id)
-                if contextual_addition:
-                    base_prompt += contextual_addition
+            try:
+                if hasattr(self.conversation_memory, 'get_contextual_prompt_addition'):
+                    if asyncio.iscoroutinefunction(self.conversation_memory.get_contextual_prompt_addition):
+                        contextual_addition = await self.conversation_memory.get_contextual_prompt_addition(request.session_id)
+                    else:
+                        contextual_addition = self.conversation_memory.get_contextual_prompt_addition(request.session_id)
+                    if contextual_addition:
+                        base_prompt += f"\n\n{contextual_addition}"
+            except Exception as e:
+                logger.warning(f"Failed to get contextual prompt addition: {e}")
         
         # Add additional context from request
         if request.additional_context:
@@ -110,7 +118,10 @@ class BaseAgent(ABC):
             if "conversation_history" in request.additional_context:
                 history = request.additional_context["conversation_history"]
                 if history:
-                    history_text = "\n".join([f"User: {turn.get('user_query', '')}\nAssistant: {turn.get('system_response', '')[:100]}..." for turn in history[-2:]])
+                    history_text = "\n".join([
+                        f"User: {turn.get('user_query', '')}\nAssistant: {turn.get('system_response', '')[:100]}..." 
+                        for turn in history[-2:]
+                    ])
                     context_parts.append(f"Recent Exchange:\n{history_text}")
             
             if context_parts:
@@ -126,6 +137,7 @@ class BaseAgent(ABC):
         start_time = datetime.now()
         
         if not self.agent:
+            logger.error(f"Agent {self.name} not properly initialized")
             return await self._create_error_response(
                 request, "Agent not properly initialized", start_time
             )
@@ -134,16 +146,19 @@ class BaseAgent(ABC):
             # Extract and enhance user context with conversation memory
             enhanced_user_context = request.user_context.copy()
             if self.conversation_memory and request.session_id:
-                if hasattr(self.conversation_memory, 'extract_user_context_from_query'):
-                    if asyncio.iscoroutinefunction(self.conversation_memory.extract_user_context_from_query):
-                        memory_context = await self.conversation_memory.extract_user_context_from_query(
-                            request.query, request.session_id
-                        )
-                    else:
-                        memory_context = self.conversation_memory.extract_user_context_from_query(
-                            request.query, request.session_id
-                        )
-                    enhanced_user_context.update(memory_context)
+                try:
+                    if hasattr(self.conversation_memory, 'extract_user_context_from_query'):
+                        if asyncio.iscoroutinefunction(self.conversation_memory.extract_user_context_from_query):
+                            memory_context = await self.conversation_memory.extract_user_context_from_query(
+                                request.query, request.session_id
+                            )
+                        else:
+                            memory_context = self.conversation_memory.extract_user_context_from_query(
+                                request.query, request.session_id
+                            )
+                        enhanced_user_context.update(memory_context)
+                except Exception as e:
+                    logger.warning(f"Failed to extract user context from memory: {e}")
             
             # Build agent-specific context
             agent_context = self.get_agent_context(request.query, enhanced_user_context)
@@ -151,10 +166,8 @@ class BaseAgent(ABC):
             # Build contextual prompt
             contextual_prompt = await self._build_contextual_prompt(request)
             
-            # Update the agent's system prompt temporarily for this request
-            original_prompt = self.agent.system_prompt
+            # Create a new agent instance with contextual prompt for this request
             try:
-                # Create a new agent instance with contextual prompt for this request
                 contextual_agent = Agent(
                     model='openai:gpt-3.5-turbo',
                     system_prompt=contextual_prompt,
@@ -164,58 +177,62 @@ class BaseAgent(ABC):
                 # Process the query using PydanticAI with contextual prompt
                 result = await contextual_agent.run(request.query)
                 
-            finally:
-                # Restore original prompt (though we're using a separate agent instance)
-                pass
+            except Exception as e:
+                logger.error(f"Error running contextual agent for {self.name}: {e}")
+                # Fall back to original agent if contextual agent fails
+                result = await self.agent.run(request.query)
             
             processing_time = (datetime.now() - start_time).total_seconds()
             
+            # Extract response text safely
+            response_text = str(result.data) if hasattr(result, 'data') else str(result)
+            
             response = AgentResponse(
                 query=request.query,
-                response=str(result.data) if hasattr(result, 'data') else str(result),
+                response=response_text,
                 agent_name=self.name,
                 session_id=request.session_id or f"session_{int(start_time.timestamp())}",
                 confidence=0.8,  # Default confidence, can be overridden by subclasses
                 processing_time=processing_time,
                 timestamp=datetime.now(),
-                tools_used=self._get_tools_used(),  # Get tools from specific agent implementation
+                tools_used=self._get_tools_used(),
                 context_used=agent_context,
-                follow_up_suggestions=self._generate_follow_up_suggestions(request.query, str(result.data) if hasattr(result, 'data') else str(result))
+                follow_up_suggestions=self._generate_follow_up_suggestions(request.query, response_text)
             )
             
             # Store conversation in memory if available
             if self.conversation_memory and request.session_id:
-                if hasattr(self.conversation_memory, 'add_conversation_turn'):
-                    if asyncio.iscoroutinefunction(self.conversation_memory.add_conversation_turn):
-                        await self.conversation_memory.add_conversation_turn(
-                            session_id=request.session_id,
-                            user_query=request.query,
-                            system_response=response.response,
-                            agents_consulted=[self.name],
-                            tools_used=response.tools_used,
-                            reasoning_approach=f"{self.name} processing",
-                            user_context=enhanced_user_context,
-                            confidence=response.confidence,
-                            processing_time=response.processing_time
-                        )
-                    else:
-                        self.conversation_memory.add_conversation_turn(
-                            session_id=request.session_id,
-                            user_query=request.query,
-                            system_response=response.response,
-                            agents_consulted=[self.name],
-                            tools_used=response.tools_used,
-                            reasoning_approach=f"{self.name} processing",
-                            user_context=enhanced_user_context,
-                            confidence=response.confidence,
-                            processing_time=response.processing_time
-                        )
+                try:
+                    await self._store_conversation_turn(request, response, enhanced_user_context)
+                except Exception as e:
+                    logger.warning(f"Failed to store conversation turn: {e}")
             
             return response
             
         except Exception as e:
             logger.error(f"Error in {self.name}: {e}")
             return await self._create_error_response(request, str(e), start_time)
+    
+    async def _store_conversation_turn(self, request: AgentRequest, response: AgentResponse, 
+                                     user_context: Dict[str, Any]):
+        """Store conversation turn in memory with proper error handling"""
+        if hasattr(self.conversation_memory, 'add_conversation_turn'):
+            conversation_data = {
+                'session_id': request.session_id,
+                'user_query': request.query,
+                'system_response': response.response,
+                'agents_consulted': [self.name],
+                'tools_used': response.tools_used,
+                'reasoning_approach': f"{self.name} processing",
+                'user_context': user_context,
+                'confidence': response.confidence,
+                'processing_time': response.processing_time
+            }
+            
+            if asyncio.iscoroutinefunction(self.conversation_memory.add_conversation_turn):
+                await self.conversation_memory.add_conversation_turn(**conversation_data)
+            else:
+                self.conversation_memory.add_conversation_turn(**conversation_data)
     
     def _get_tools_used(self) -> List[str]:
         """Get list of tools used by this agent. Override in subclasses."""
@@ -245,31 +262,26 @@ class BaseAgent(ABC):
         
         # Store error in conversation memory if available
         if self.conversation_memory and request.session_id:
-            if hasattr(self.conversation_memory, 'add_conversation_turn'):
-                if asyncio.iscoroutinefunction(self.conversation_memory.add_conversation_turn):
-                    await self.conversation_memory.add_conversation_turn(
-                        session_id=request.session_id,
-                        user_query=request.query,
-                        system_response=response.response,
-                        agents_consulted=[self.name],
-                        tools_used=[],
-                        reasoning_approach=f"{self.name} error handling",
-                        user_context=request.user_context,
-                        confidence=response.confidence,
-                        processing_time=response.processing_time
-                    )
-                else:
-                    self.conversation_memory.add_conversation_turn(
-                        session_id=request.session_id,
-                        user_query=request.query,
-                        system_response=response.response,
-                        agents_consulted=[self.name],
-                        tools_used=[],
-                        reasoning_approach=f"{self.name} error handling",
-                        user_context=request.user_context,
-                        confidence=response.confidence,
-                        processing_time=response.processing_time
-                    )
+            try:
+                error_data = {
+                    'session_id': request.session_id,
+                    'user_query': request.query,
+                    'system_response': response.response,
+                    'agents_consulted': [self.name],
+                    'tools_used': [],
+                    'reasoning_approach': f"{self.name} error handling",
+                    'user_context': request.user_context,
+                    'confidence': response.confidence,
+                    'processing_time': response.processing_time
+                }
+                
+                if hasattr(self.conversation_memory, 'add_conversation_turn'):
+                    if asyncio.iscoroutinefunction(self.conversation_memory.add_conversation_turn):
+                        await self.conversation_memory.add_conversation_turn(**error_data)
+                    else:
+                        self.conversation_memory.add_conversation_turn(**error_data)
+            except Exception as e:
+                logger.warning(f"Failed to store error conversation turn: {e}")
         
         return response
     
@@ -292,4 +304,63 @@ class BaseAgent(ABC):
                 "Contextual continuity"
             ])
         
-        return capabilities 
+        return capabilities
+    
+    def __str__(self) -> str:
+        """String representation of the agent"""
+        status = "Available" if self.is_available() else "Not Available"
+        return f"{self.name} ({self.__class__.__name__}): {status}"
+    
+    def __repr__(self) -> str:
+        """Detailed string representation of the agent"""
+        return f"<{self.__class__.__name__}(name='{self.name}', available={self.is_available()})>"
+
+
+class CogneeKnowledgeIngestionAgent(BaseAgent):
+    """
+    Specialized agent for Cognee knowledge ingestion and semantic search.
+    This agent handles document processing and knowledge base queries.
+    """
+    
+    def __init__(self, system_prompt: str = None, openai_client=None, storage_service=None, 
+                 graph_intelligence=None, conversation_memory=None):
+        
+        default_prompt = """
+        You are a specialized knowledge ingestion and semantic search agent powered by Cognee.
+        
+        Your capabilities include:
+        - Processing and ingesting documents into a knowledge graph
+        - Performing semantic search across stored knowledge
+        - Extracting structured information from unstructured text
+        - Managing knowledge base queries and updates
+        
+        When users upload documents or ask about stored information, guide them through
+        the ingestion process and help them find relevant information from the knowledge base.
+        """
+        
+        super().__init__(
+            name="Cognee Knowledge Agent",
+            description="Handles document ingestion and knowledge base queries using Cognee",
+            system_prompt=system_prompt or default_prompt,
+            openai_client=openai_client,
+            storage_service=storage_service,
+            graph_intelligence=graph_intelligence,
+            conversation_memory=conversation_memory
+        )
+    
+    def _register_tools(self):
+        """Register Cognee-specific tools"""
+        # This would be implemented based on your Cognee integration
+        pass
+    
+    def _get_tools_used(self) -> List[str]:
+        """Get list of Cognee tools used"""
+        return ["cognee_ingestion", "semantic_search", "knowledge_graph"]
+    
+    def _generate_follow_up_suggestions(self, query: str, response: str) -> List[str]:
+        """Generate Cognee-specific follow-up suggestions"""
+        return [
+            "Would you like to search for related documents?",
+            "Do you need help with document ingestion?",
+            "Would you like to explore the knowledge graph connections?"
+        ]

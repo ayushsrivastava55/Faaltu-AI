@@ -30,11 +30,17 @@ class CogneeKnowledgeIngestionAgent(BaseAgent):
     Transforms documents into semantic knowledge graphs stored in Neo4j.
     """
     
-    def __init__(self):
+    def __init__(self, system_prompt: str, openai_client, storage_service):
+        # Call parent constructor with required arguments
         super().__init__(
             name="Cognee Knowledge Ingestion Agent",
-            description="Processes documents into knowledge graphs using Cognee and Neo4j"
+            description="Processes documents into knowledge graphs using Cognee and Neo4j",
+            system_prompt=system_prompt,
+            openai_client=openai_client,
+            storage_service=storage_service
         )
+        
+        # Initialize Cognee-specific attributes
         self.initialized = False
         self.error_message = None
         
@@ -89,6 +95,36 @@ class CogneeKnowledgeIngestionAgent(BaseAgent):
         except Exception as e:
             raise ConnectionError(f"Neo4j connection failed: {e}")
     
+    def _register_tools(self):
+        """Register tools for the Cognee knowledge ingestion agent"""
+        # Define the tools this agent provides
+        tools = [
+            {
+                "name": "ingest_document",
+                "description": "Ingest a document into the knowledge graph using Cognee",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "content": {"type": "string", "description": "Document content to ingest"},
+                        "metadata": {"type": "object", "description": "Document metadata"}
+                    },
+                    "required": ["content"]
+                }
+            },
+            {
+                "name": "query_knowledge",
+                "description": "Query the knowledge graph",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string", "description": "Query to search the knowledge graph"}
+                    },
+                    "required": ["query"]
+                }
+            }
+        ]
+        return tools
+
     async def process_query(self, query: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Main entry point for processing queries.

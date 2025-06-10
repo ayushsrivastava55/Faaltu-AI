@@ -56,21 +56,32 @@ class AgentOrchestrator(BaseAgent):
         self.storage_service = storage_service
         self.graph_intelligence = graph_intelligence
         self.conversation_memory = conversation_memory
-
+        
         try:
             self.specialist_agents = {
                 "loan_advisor": LoanAdvisorAgent(openai_client, storage_service, graph_intelligence, conversation_memory),
                 "market_researcher": MarketResearcherAgent(openai_client, storage_service, graph_intelligence, conversation_memory),
                 "application_assistant": ApplicationAssistantAgent(openai_client, storage_service, graph_intelligence, conversation_memory),
-                "cognee_knowledge": CogneeKnowledgeIngestionAgent(openai_client, storage_service, graph_intelligence, conversation_memory),
+                "cognee_knowledge": CogneeKnowledgeIngestionAgent(
+                    system_prompt="Process and ingest documents into knowledge graphs using Cognee and Neo4j. Extract entities, relationships, and semantic information to build comprehensive knowledge representations.",
+                    openai_client=openai_client, 
+                    storage_service=storage_service
+                ),
             }
-
+            
             for agent_name, agent in self.specialist_agents.items():
                 if hasattr(agent, 'is_available') and callable(agent.is_available):
                     status = "✅ Available" if agent.is_available() else "❌ Not Available"
                 else:
                     status = "✅ Initialized"
                 logger.info(f"Agent '{agent_name}': {status}")
+                
+        except Exception as e:
+            logger.error(f"Failed to initialize agents: {e}")
+            self.specialist_agents = {}
+
+
+
 
         except Exception as e:
             logger.error(f"Failed to initialize agents: {e}")
@@ -149,8 +160,11 @@ class AgentOrchestrator(BaseAgent):
                 ),
                 # NEW: Add the Cognee Knowledge Ingestion Agent
                 "cognee_knowledge": CogneeKnowledgeIngestionAgent(
-                    self.openai_client, self.storage_service, self.graph_intelligence, self.conversation_memory
-                )
+                system_prompt=specialist_prompts["cognee_knowledge"],
+                openai_client=self.openai_client,
+                storage_service=self.storage_service
+            )
+
             }
         except Exception as e:
             logger.error(f"Failed to initialize some specialist agents: {e}")
