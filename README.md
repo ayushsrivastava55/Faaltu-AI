@@ -205,3 +205,18 @@ docker run \
 
   url link for checking 
   localhost:7574
+
+
+  docker run \
+  --name neo4j-cognee-alt \
+  -p 7474:7474 -p 7687:7687 \
+  -v ~/neo4j_plugins:/plugins \
+  -v ~/neo4j_data:/data \
+  -e NEO4J_AUTH=neo4j/cognee123 \
+  -e NEO4J_PLUGINS='["apoc"]' \
+  -e NEO4J_dbms_security_procedures_unrestricted="apoc.*" \
+  -e NEO4J_dbms_security_procedures_allowlist="apoc.*" \
+  -e NEO4J_apoc_export_file_enabled=true \
+  -e NEO4J_apoc_import_file_enabled=true \
+  -e NEO4J_apoc_import_file_use__neo4j__config=true \
+  neo4j:latest 

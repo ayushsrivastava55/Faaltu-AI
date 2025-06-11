@@ -1467,6 +1467,7 @@ async def upload_url_to_cognee(
                 # Clean up temp file
                 try:
                     temp_file_path.unlink()
+
                 except:
                     pass
                 #changed this

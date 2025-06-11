@@ -1,5 +1,15 @@
 # Copy this file to .env and update with your actual values
-
+# Neo4j 5.x compatibility
+NEO4J_USE_ELEMENT_ID=true
+NEO4J_CYPHER_USE_ELEMENT_ID=true
+NEO4J_ELEMENTID_ONLY=true
+NEO4J_VERSION=5
+LITELLM_LOG=ERROR
+LITELLM_LOG_LEVEL=WARNING
+LITELLM_SUPPRESS_COST_LOGS=true
+# Additional Cognee configurations
+COGNEE_QUERY_REPLACE_ID_WITH_ELEMENTID=true
+COGNEE_USE_NEO4J_5_SYNTAX=true
 # OpenAI Configuration
 OPENAI_API_KEY=
 OPENAI_MODEL=gpt-3.5-turbo

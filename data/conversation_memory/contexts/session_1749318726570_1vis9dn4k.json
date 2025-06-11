@@ -35,7 +35,7 @@
       }
     },
     "created_at": "2025-06-10 01:02:42.836260",
-    "last_updated": "2025-06-11 00:48:07.114519",
+    "last_updated": "2025-06-11 14:10:04.966368",
     "total_interactions": 2
   },
   "conversation_history": [],
@@ -44,7 +44,7 @@
   "context_summary": null,
   "last_agent_used": null,
   "pending_actions": [],
-  "started_at": "2025-06-11 00:48:07.114632",
-  "last_activity": "2025-06-11 00:48:07.114636",
+  "started_at": "2025-06-11 14:10:04.966455",
+  "last_activity": "2025-06-11 14:10:04.966457",
   "is_voice_session": false
 }
